@@ -5,6 +5,8 @@ import ForgotPassword from './src/screens/ForgotPassword';
 import ResetPassword from './src/screens/ResetPassword';
 import HomePage from './src/screens/HomePage';
 import ViewAll from './src/screens/ViewAll';
+import MovieDetails from './src/screens/MovieDetails';
+import OrderPage from './src/screens/OrderPage';
 
 const App = () => {
   return (
@@ -13,7 +15,9 @@ const App = () => {
     // <ForgotPassword />
     // <ResetPassword />
     // <HomePage />
-    <ViewAll />
+    // <ViewAll />
+    // <MovieDetails />
+    <OrderPage />
   );
 };
 
