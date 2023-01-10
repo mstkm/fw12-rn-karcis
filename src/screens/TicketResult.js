@@ -14,7 +14,7 @@ import NavbarUser from '../components/NavbarUser';
 const TicketResult = () => {
   return (
     <NativeBaseProvider>
-      <ScrollView>
+      <ScrollView stickyHeaderIndices={[0]} stickyHeaderHiddenOnScroll={true}>
         <NavbarUser />
         <Box p="10" bg="#E5E5E5" zIndex={-100}>
           <Box bg="#FFFFFF" borderRadius={8}>
