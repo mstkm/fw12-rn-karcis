@@ -160,7 +160,7 @@ const PaymentPage = () => {
               <Input
                 defaultValue="Jonas El Rodriguez"
                 fontSize={14}
-                borderRadius={16}
+                borderRadius={12}
                 borderColor="#DEDEDE"
               />
             </Box>
@@ -169,7 +169,7 @@ const PaymentPage = () => {
               <Input
                 defaultValue="jonasrodri123@gmail.com"
                 fontSize={14}
-                borderRadius={16}
+                borderRadius={12}
                 borderColor="#DEDEDE"
               />
             </Box>
@@ -178,7 +178,7 @@ const PaymentPage = () => {
               <Input
                 defaultValue="081445687121"
                 fontSize={14}
-                borderRadius={16}
+                borderRadius={12}
                 borderColor="#DEDEDE"
               />
             </Box>
@@ -190,7 +190,7 @@ const PaymentPage = () => {
               height={45}
               borderWidth={1}
               fontSize={14}
-              borderRadius={16}
+              borderRadius={12}
               bg="rgba(244, 183, 64, 0.3)"
               borderColor="#DEDEDE">
               <Icon name="alert-triangle" size={20} />
@@ -203,7 +203,7 @@ const PaymentPage = () => {
             width="full"
             height={45}
             bg="#00005C"
-            borderRadius={16}
+            borderRadius={12}
             alignItems="center"
             justifyContent="center">
             <Text color="white" fontWeight="bold">
