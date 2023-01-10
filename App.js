@@ -7,6 +7,7 @@ import HomePage from './src/screens/HomePage';
 import ViewAll from './src/screens/ViewAll';
 import MovieDetails from './src/screens/MovieDetails';
 import OrderPage from './src/screens/OrderPage';
+import PaymentPage from './src/screens/PaymentPage';
 
 const App = () => {
   return (
@@ -17,7 +18,8 @@ const App = () => {
     // <HomePage />
     // <ViewAll />
     // <MovieDetails />
-    <OrderPage />
+    // <OrderPage />
+    <PaymentPage />
   );
 };
 
