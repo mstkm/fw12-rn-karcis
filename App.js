@@ -9,6 +9,7 @@ import MovieDetails from './src/screens/MovieDetails';
 import OrderPage from './src/screens/OrderPage';
 import PaymentPage from './src/screens/PaymentPage';
 import Profile from './src/screens/Profile';
+import OrderHistory from './src/screens/OrderHistory';
 
 const App = () => {
   return (
@@ -21,7 +22,8 @@ const App = () => {
     // <MovieDetails />
     // <OrderPage />
     // <PaymentPage />
-    <Profile />
+    // <Profile />
+    <OrderHistory />
   );
 };
 
