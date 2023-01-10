@@ -8,9 +8,23 @@ import {
   StyleSheet,
   Pressable,
 } from 'react-native';
-const nowShow = [1, 2, 3];
+import http from '../helpers/http';
 
 const NowShowing = () => {
+  const nowShow = [1, 2, 3];
+  // Get Now Showing Movies
+  const [nowShowingMovies, setNowShowingMovies] = React.useState([]);
+  React.useEffect(() => {
+    getNowShowing();
+  }, []);
+  const getNowShowing = async () => {
+    try {
+      const response = await http().get('/movies/nowShowing');
+      setNowShowingMovies(response?.data?.results);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const [selectedMovie, setSelectedMovie] = React.useState(null);
   return (
     <View style={styles.wrapper}>
@@ -22,7 +36,7 @@ const NowShowing = () => {
       </View>
       <View style={styles.listNowShowingWrapper}>
         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-          {nowShow.map((movie, index) => {
+          {nowShowingMovies.map((movie, index) => {
             return (
               <View key={String(index)}>
                 <Pressable
@@ -35,16 +49,17 @@ const NowShowing = () => {
                     borderLeftWidth: 1,
                     borderRightWidth: 1,
                     borderBottomWidth: selectedMovie === index ? 0 : 1,
-                    width: 165,
                     marginRight: 16,
-                    paddingHorizontal: 10,
+                    padding: 10,
                     borderTopStartRadius: 6,
                     borderTopEndRadius: 6,
                     borderBottomStartRadius: selectedMovie === index ? 0 : 6,
                     borderBottomEndRadius: selectedMovie === index ? 0 : 6,
                   }}>
                   <Image
-                    source={require('../images/spiderman.png')}
+                    source={{
+                      uri: movie?.picture,
+                    }}
                     style={styles.imageNowShowing}
                   />
                 </Pressable>
@@ -54,11 +69,9 @@ const NowShowing = () => {
                       style={styles.textTitle}
                       numberOfLines={1}
                       ellipsizeMode="tail">
-                      Spiderman: Homecoming
+                      {movie?.title}
                     </Text>
-                    <Text style={styles.textGenre}>
-                      Action, Adventure, Sci-fi
-                    </Text>
+                    <Text style={styles.textGenre}>{movie?.genre}</Text>
                     <Pressable style={styles.btnDetails}>
                       <Text style={styles.textBtnDetails}>Details</Text>
                     </Pressable>
@@ -112,17 +125,30 @@ const styles = StyleSheet.create({
   },
   imageNowShowing: {
     resizeMode: 'contain',
-    width: '100%',
+    width: 150,
+    height: 230,
+    borderRadius: 4,
+  },
+  line: {
+    position: 'absolute',
+    width: 169,
+    left: 1,
+    bottom: 100,
+    height: 10,
+    borderTopColor: 'black',
+    borderTopWidth: 3,
   },
   detailsWrapper: {
     alignItems: 'center',
     backgroundColor: 'white',
-    width: 165,
+    width: 172,
     paddingHorizontal: 10,
     borderLeftWidth: 1,
     borderRightWidth: 1,
     borderBottomWidth: 1,
-    borderColor: '#DEDEDE',
+    borderLeftColor: '#DEDEDE',
+    borderRightColor: '#DEDEDE',
+    borderBottomColor: '#DEDEDE',
     borderBottomStartRadius: 6,
     borderBottomEndRadius: 6,
   },
