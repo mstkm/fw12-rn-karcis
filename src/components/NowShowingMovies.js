@@ -24,9 +24,8 @@ const NowShowing = () => {
         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
           {nowShow.map((movie, index) => {
             return (
-              <View>
+              <View key={String(index)}>
                 <Pressable
-                  key={String(index)}
                   onPress={() => setSelectedMovie(index)}
                   style={{
                     borderColor: selectedMovie === index ? '#DEDEDE' : 'white',

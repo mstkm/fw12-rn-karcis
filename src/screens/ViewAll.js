@@ -36,7 +36,7 @@ const ViewAll = () => {
   };
   return (
     <NativeBaseProvider>
-      <ScrollView stickyHeaderIndices={[0]}>
+      <ScrollView stickyHeaderIndices={[0]} stickyHeaderHiddenOnScroll={true}>
         <NavbarUser />
         <Stack space="5" px="5" py="8" bg="#F5F6F8" zIndex={-10}>
           <Text fontSize="18" fontWeight="bold">

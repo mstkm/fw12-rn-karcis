@@ -16,7 +16,10 @@ import NowShowing from '../components/NowShowingMovies';
 const Homepage = () => {
   return (
     <View>
-      <ScrollView stickyHeaderIndices={[0]} style={styles.wrapper}>
+      <ScrollView
+        stickyHeaderIndices={[0]}
+        stickyHeaderHiddenOnScroll={true}
+        style={styles.wrapper}>
         <NavbarBeforeLogin />
         <View style={styles.bannerWrapper}>
           <View>
