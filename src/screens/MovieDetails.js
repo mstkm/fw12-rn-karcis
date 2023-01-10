@@ -11,6 +11,7 @@ import {
   Modal,
   useDisclose,
   Actionsheet,
+  Button,
 } from 'native-base';
 import NavbarUser from '../components/NavbarUser';
 import Icon from 'react-native-vector-icons/Feather';
@@ -30,7 +31,6 @@ const MovieDetails = () => {
 
   const times = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'];
   const [selectedTime, setSelectedTime] = React.useState(null);
-  const [isPress, setIsPress] = React.useState(false);
   return (
     <NativeBaseProvider>
       <ScrollView stickyHeaderIndices={[0]} stickyHeaderHiddenOnScroll={true}>
@@ -214,17 +214,15 @@ const MovieDetails = () => {
               </Text>
             </Box>
             <Box width="full" px="5" pt="3" pb="8">
-              <Pressable
-                onPressIn={() => setIsPress(true)}
-                onPressOut={() => setIsPress(false)}
-                bg={isPress ? 'black' : '#00005C'}
+              <Button
+                bg="#00005C"
                 borderColor="#00005C"
                 height={35}
                 borderRadius={4}
                 alignItems="center"
                 justifyContent="center">
                 <Text color="white">Book Now</Text>
-              </Pressable>
+              </Button>
             </Box>
           </Box>
         </Stack>
