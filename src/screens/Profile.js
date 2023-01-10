@@ -64,6 +64,7 @@ const Profile = () => {
           <Pressable width="50%">
             <Text
               fontSize={16}
+              fontWeight="bold"
               textAlign="center"
               py="5"
               borderBottomWidth={2}
