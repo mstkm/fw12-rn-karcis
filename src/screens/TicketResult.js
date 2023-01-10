@@ -16,7 +16,7 @@ const TicketResult = () => {
     <NativeBaseProvider>
       <ScrollView>
         <NavbarUser />
-        <Box p="10" bg="#E5E5E5">
+        <Box p="10" bg="#E5E5E5" zIndex={-100}>
           <Box bg="#FFFFFF" borderRadius={8}>
             <Box alignItems="center" pb="10" pt="8">
               <Image
