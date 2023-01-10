@@ -10,6 +10,7 @@ import OrderPage from './src/screens/OrderPage';
 import PaymentPage from './src/screens/PaymentPage';
 import Profile from './src/screens/Profile';
 import OrderHistory from './src/screens/OrderHistory';
+import TicketResult from './src/screens/TicketResult';
 
 const App = () => {
   return (
@@ -23,7 +24,8 @@ const App = () => {
     // <OrderPage />
     // <PaymentPage />
     // <Profile />
-    <OrderHistory />
+    // <OrderHistory />
+    <TicketResult />
   );
 };
 
