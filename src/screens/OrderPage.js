@@ -183,7 +183,7 @@ const OrderPage = () => {
           <Button
             my="8"
             width="full"
-            height="10"
+            height={45}
             bg="#00005C"
             borderRadius={16}
             alignItems="center"
