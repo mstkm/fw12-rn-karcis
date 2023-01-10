@@ -185,7 +185,7 @@ const OrderPage = () => {
             width="full"
             height={45}
             bg="#00005C"
-            borderRadius={16}
+            borderRadius={12}
             alignItems="center"
             justifyContent="center">
             <Text color="white" fontWeight="bold">
