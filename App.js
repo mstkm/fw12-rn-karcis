@@ -8,6 +8,7 @@ import ViewAll from './src/screens/ViewAll';
 import MovieDetails from './src/screens/MovieDetails';
 import OrderPage from './src/screens/OrderPage';
 import PaymentPage from './src/screens/PaymentPage';
+import Profile from './src/screens/Profile';
 
 const App = () => {
   return (
@@ -19,7 +20,8 @@ const App = () => {
     // <ViewAll />
     // <MovieDetails />
     // <OrderPage />
-    <PaymentPage />
+    // <PaymentPage />
+    <Profile />
   );
 };
 
