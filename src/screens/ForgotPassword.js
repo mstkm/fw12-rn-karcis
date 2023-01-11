@@ -12,12 +12,19 @@ import {Formik} from 'formik';
 import * as Yup from 'yup';
 import YupPasword from 'yup-password';
 YupPasword(Yup);
+import {useNavigation} from '@react-navigation/native';
 
 const ForgotPassword = () => {
+  const navigation = useNavigation();
   // Form Validation
   const SignInSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Required'),
   });
+
+  // Handle Forgot Password
+  const handleForgotPassword = () => {
+    navigation.navigate('ResetPassword');
+  };
   return (
     <ScrollView>
       <View style={styles.containerImage}>
@@ -37,7 +44,7 @@ const ForgotPassword = () => {
           }}
           validationSchema={SignInSchema}
           onSubmit={values => {
-            console.log(values);
+            handleForgotPassword(values);
           }}>
           {({
             handleChange,
@@ -66,7 +73,7 @@ const ForgotPassword = () => {
               ) : null}
               <View style={styles.containerBtn}>
                 <Pressable onPress={handleSubmit} style={styles.btn}>
-                  <Text style={styles.textBtn}>Sign In</Text>
+                  <Text style={styles.textBtn}>Send</Text>
                 </Pressable>
               </View>
             </>

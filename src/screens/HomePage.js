@@ -8,10 +8,10 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import NavbarBeforeLogin from '../components/NavbarBeforeLogin';
 import UpcomingMovies from '../components/UpcomingMovies';
 import Footer from '../components/Footer';
 import NowShowing from '../components/NowShowingMovies';
+import NavbarUser from '../components/NavbarUser';
 
 const Homepage = () => {
   return (
@@ -20,7 +20,7 @@ const Homepage = () => {
         stickyHeaderIndices={[0]}
         stickyHeaderHiddenOnScroll={true}
         style={styles.wrapper}>
-        <NavbarBeforeLogin />
+        <NavbarUser />
         <View style={styles.bannerWrapper}>
           <View>
             <Text style={styles.textBanner1}>

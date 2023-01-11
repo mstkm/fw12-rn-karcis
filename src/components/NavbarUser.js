@@ -1,8 +1,17 @@
 import React from 'react';
-import {StyleSheet, View, Text, Image, TextInput} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  TextInput,
+  Pressable,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
+import {useNavigation} from '@react-navigation/native';
 
 const NavbarUser = () => {
+  const navigation = useNavigation();
   const [isShowMenu, setIsShowMenu] = React.useState(false);
   const showMenu = () => {
     if (isShowMenu === false) {
@@ -46,18 +55,27 @@ const NavbarUser = () => {
               />
             </View>
             <View>
-              <View style={styles.listMenuWrapper}>
+              <Pressable
+                onPress={() => navigation.navigate('HomePage')}
+                onPressOut={() => setIsShowMenu(false)}
+                style={styles.listMenuWrapper}>
                 <Text style={styles.textListMenu}>Home</Text>
-              </View>
-              <View style={styles.listMenuWrapper}>
+              </Pressable>
+              <Pressable
+                onPress={() => navigation.navigate('ViewAll')}
+                onPressOut={() => setIsShowMenu(false)}
+                style={styles.listMenuWrapper}>
                 <Text style={styles.textListMenu}>List Movie</Text>
-              </View>
-              <View style={styles.listMenuWrapper}>
+              </Pressable>
+              <Pressable
+                onPress={() => navigation.navigate('Profile')}
+                onPressOut={() => setIsShowMenu(false)}
+                style={styles.listMenuWrapper}>
                 <Text style={styles.textListMenu}>Profile</Text>
-              </View>
-              <View style={styles.listMenuWrapper}>
+              </Pressable>
+              <Pressable style={styles.listMenuWrapper}>
                 <Text style={styles.textListMenu}>Logout</Text>
-              </View>
+              </Pressable>
               <View style={styles.textFooterMenuWrapper}>
                 <Text style={styles.textFooterMenu}>
                   © 2023 Karcis. All Rights Reserved.
@@ -80,7 +98,7 @@ const styles = StyleSheet.create({
   },
   navbarWrapper: {
     paddingHorizontal: 20,
-    paddingTop: 10,
+    paddingTop: 5,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'white',

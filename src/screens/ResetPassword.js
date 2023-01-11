@@ -13,8 +13,10 @@ import * as Yup from 'yup';
 import YupPasword from 'yup-password';
 YupPasword(Yup);
 import Icon from 'react-native-vector-icons/Feather';
+import {useNavigation} from '@react-navigation/native';
 
 const ResetPassword = () => {
+  const navigation = useNavigation();
   // Form Validation
   const ResetPasswordSchema = Yup.object().shape({
     password: Yup.string()
@@ -51,6 +53,11 @@ const ResetPassword = () => {
       setIconEyeConfirm(true);
     }
   };
+
+  // Handle Reset Password
+  const handleResetPassword = () => {
+    navigation.navigate('SignIn');
+  };
   return (
     <ScrollView>
       <View style={styles.containerImage}>
@@ -71,7 +78,7 @@ const ResetPassword = () => {
           }}
           validationSchema={ResetPasswordSchema}
           onSubmit={values => {
-            console.log(values);
+            handleResetPassword(values);
           }}>
           {({
             handleChange,

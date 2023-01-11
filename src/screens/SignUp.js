@@ -1,20 +1,24 @@
 import React from 'react';
 import {
-  ScrollView,
   StyleSheet,
   Text,
   View,
   Image,
   TextInput,
   Pressable,
+  Dimensions,
+  ScrollView,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {Formik} from 'formik';
 import * as Yup from 'yup';
 import YupPasword from 'yup-password';
 YupPasword(Yup);
 import Icon from 'react-native-vector-icons/Feather';
+import {useNavigation} from '@react-navigation/native';
 
 const SignUp = () => {
+  const navigation = useNavigation();
   // Form Validation
   const phoneRegExpID = /^(^08)(\d{8,10})$/;
   const SignUpSchema = Yup.object().shape({
@@ -51,147 +55,152 @@ const SignUp = () => {
       setIconEye(true);
     }
   };
+  const screenHeight = Dimensions.get('window').height;
   return (
-    <ScrollView>
-      <View style={styles.containerImage}>
-        <Image
-          source={require('../images/bannerKarcis.png')}
-          style={styles.image}
-        />
-      </View>
-      <View style={styles.containerHead}>
-        <Text style={styles.h1}>Sign Up</Text>
-        <Text style={styles.text}>Fill your additional details</Text>
-      </View>
-      <View style={styles.containerForm}>
-        <Formik
-          initialValues={{
-            firstName: '',
-            lastName: '',
-            phoneNumber: '',
-            email: '',
-            password: '',
-          }}
-          validationSchema={SignUpSchema}
-          onSubmit={values => {
-            console.log(values);
-          }}>
-          {({
-            handleChange,
-            handleBlur,
-            handleSubmit,
-            values,
-            errors,
-            touched,
-          }) => (
-            <>
-              <View style={styles.containerInput}>
-                <Text style={styles.text}>First Name</Text>
-                <TextInput
-                  name="firstName"
-                  keyboardType="text"
-                  onChangeText={handleChange('firstName')}
-                  onBlur={handleBlur('firstName')}
-                  value={values.firstName}
-                  style={styles.input}
-                  placeholder="Write your first name"
-                />
-              </View>
-              {errors.firstName && touched.firstName ? (
-                <Text style={styles.errorText}>{errors.firstName}</Text>
-              ) : null}
-              <View style={styles.containerInput}>
-                <Text style={styles.text}>Last Name</Text>
-                <TextInput
-                  name="lastName"
-                  keyboardType="text"
-                  onChangeText={handleChange('lastName')}
-                  onBlur={handleBlur('lastName')}
-                  value={values.lastName}
-                  style={styles.input}
-                  placeholder="Write your last name"
-                />
-              </View>
-              {errors.lastName && touched.lastName ? (
-                <Text style={styles.errorText}>{errors.lastName}</Text>
-              ) : null}
-              <View style={styles.containerInput}>
-                <Text style={styles.text}>Phone Number</Text>
-                <TextInput
-                  name="phoneNumber"
-                  keyboardType="numeric"
-                  onChangeText={handleChange('phoneNumber')}
-                  onBlur={handleBlur('phoneNumber')}
-                  value={values.phoneNumber}
-                  style={styles.input}
-                  placeholder="Write your phone number"
-                />
-              </View>
-              {errors.phoneNumber && touched.phoneNumber ? (
-                <Text style={styles.errorText}>{errors.phoneNumber}</Text>
-              ) : null}
-              <View style={styles.containerInput}>
-                <Text style={styles.text}>Email</Text>
-                <TextInput
-                  name="email"
-                  keyboardType="text"
-                  onChangeText={handleChange('email')}
-                  onBlur={handleBlur('email')}
-                  value={values.email}
-                  autoCapitalize="none"
-                  style={styles.input}
-                  placeholder="Write your email"
-                />
-              </View>
-              {errors.email && touched.email ? (
-                <Text style={styles.errorText}>{errors.email}</Text>
-              ) : null}
-              <View style={styles.containerInput}>
-                <Text style={styles.text}>Password</Text>
-                <TextInput
-                  name="password"
-                  keyboardType="text"
-                  onChangeText={handleChange('password')}
-                  onBlur={handleBlur('password')}
-                  value={values.password}
-                  secureTextEntry={isPasswordSecure ? true : false}
-                  autoCapitalize="none"
-                  style={styles.input}
-                  placeholder="Write your password"
-                />
-                <Icon
-                  onPress={showPassword}
-                  name={iconEye ? 'eye' : 'eye-off'}
-                  style={styles.icon}
-                  size={20}
-                />
-              </View>
-              {errors.password && touched.password ? (
-                <Text style={styles.errorText}>{errors.password}</Text>
-              ) : null}
-              <View style={styles.containerBtn}>
-                <Pressable onPress={handleSubmit} style={styles.btn}>
-                  <Text style={styles.textBtn}>Sign Up</Text>
-                </Pressable>
-              </View>
-            </>
-          )}
-        </Formik>
-        <View style={styles.containerText2}>
-          <Text style={styles.text2}>
-            Already have account ?{' '}
-            <Text style={styles.innerText2}> Sign In</Text>
-          </Text>
-        </View>
-      </View>
-    </ScrollView>
+    <View style={{height: screenHeight}}>
+      <KeyboardAvoidingView behavior="padding">
+        <ScrollView>
+          <View style={styles.containerImage}>
+            <Image
+              source={require('../images/bannerKarcis.png')}
+              style={styles.image}
+            />
+          </View>
+          <View style={styles.containerHead}>
+            <Text style={styles.h1}>Sign Up</Text>
+            <Text style={styles.text}>Fill your additional details</Text>
+          </View>
+          <View style={styles.containerForm}>
+            <Formik
+              initialValues={{
+                firstName: '',
+                lastName: '',
+                phoneNumber: '',
+                email: '',
+                password: '',
+              }}
+              validationSchema={SignUpSchema}
+              onSubmit={values => {
+                console.log(values);
+              }}>
+              {({
+                handleChange,
+                handleBlur,
+                handleSubmit,
+                values,
+                errors,
+                touched,
+              }) => (
+                <>
+                  <View style={styles.containerInput}>
+                    <Text style={styles.text}>First Name</Text>
+                    <TextInput
+                      name="firstName"
+                      keyboardType="text"
+                      onChangeText={handleChange('firstName')}
+                      onBlur={handleBlur('firstName')}
+                      value={values.firstName}
+                      style={styles.input}
+                      placeholder="Write your first name"
+                    />
+                  </View>
+                  {errors.firstName && touched.firstName ? (
+                    <Text style={styles.errorText}>{errors.firstName}</Text>
+                  ) : null}
+                  <View style={styles.containerInput}>
+                    <Text style={styles.text}>Last Name</Text>
+                    <TextInput
+                      name="lastName"
+                      keyboardType="text"
+                      onChangeText={handleChange('lastName')}
+                      onBlur={handleBlur('lastName')}
+                      value={values.lastName}
+                      style={styles.input}
+                      placeholder="Write your last name"
+                    />
+                  </View>
+                  {errors.lastName && touched.lastName ? (
+                    <Text style={styles.errorText}>{errors.lastName}</Text>
+                  ) : null}
+                  <View style={styles.containerInput}>
+                    <Text style={styles.text}>Phone Number</Text>
+                    <TextInput
+                      name="phoneNumber"
+                      keyboardType="numeric"
+                      onChangeText={handleChange('phoneNumber')}
+                      onBlur={handleBlur('phoneNumber')}
+                      value={values.phoneNumber}
+                      style={styles.input}
+                      placeholder="Write your phone number"
+                    />
+                  </View>
+                  {errors.phoneNumber && touched.phoneNumber ? (
+                    <Text style={styles.errorText}>{errors.phoneNumber}</Text>
+                  ) : null}
+                  <View style={styles.containerInput}>
+                    <Text style={styles.text}>Email</Text>
+                    <TextInput
+                      name="email"
+                      keyboardType="text"
+                      onChangeText={handleChange('email')}
+                      onBlur={handleBlur('email')}
+                      value={values.email}
+                      autoCapitalize="none"
+                      style={styles.input}
+                      placeholder="Write your email"
+                    />
+                  </View>
+                  {errors.email && touched.email ? (
+                    <Text style={styles.errorText}>{errors.email}</Text>
+                  ) : null}
+                  <View style={styles.containerInput}>
+                    <Text style={styles.text}>Password</Text>
+                    <TextInput
+                      name="password"
+                      keyboardType="text"
+                      onChangeText={handleChange('password')}
+                      onBlur={handleBlur('password')}
+                      value={values.password}
+                      secureTextEntry={isPasswordSecure ? true : false}
+                      autoCapitalize="none"
+                      style={styles.input}
+                      placeholder="Write your password"
+                    />
+                    <Icon
+                      onPress={showPassword}
+                      name={iconEye ? 'eye' : 'eye-off'}
+                      style={styles.icon}
+                      size={20}
+                    />
+                  </View>
+                  {errors.password && touched.password ? (
+                    <Text style={styles.errorText}>{errors.password}</Text>
+                  ) : null}
+                  <View style={styles.containerBtn}>
+                    <Pressable onPress={handleSubmit} style={styles.btn}>
+                      <Text style={styles.textBtn}>Sign Up</Text>
+                    </Pressable>
+                  </View>
+                </>
+              )}
+            </Formik>
+            <View style={styles.containerText2}>
+              <Text style={styles.text2}>Don't have an account? </Text>
+              <Pressable onPress={() => navigation.navigate('SignIn')}>
+                <Text style={styles.innerText2}>Sign In</Text>
+              </Pressable>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   containerImage: {
     paddingHorizontal: 20,
-    marginTop: 50,
+    paddingTop: 50,
   },
   image: {
     width: 150,
@@ -247,6 +256,9 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   containerText2: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: 20,
     marginBottom: 50,
   },
@@ -255,6 +267,7 @@ const styles = StyleSheet.create({
   },
   innerText2: {
     color: '#00005C',
+    textDecorationLine: 'underline',
   },
   errorText: {
     color: 'red',

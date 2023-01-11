@@ -13,8 +13,10 @@ import * as Yup from 'yup';
 import YupPasword from 'yup-password';
 YupPasword(Yup);
 import Icon from 'react-native-vector-icons/Feather';
+import {useNavigation} from '@react-navigation/native';
 
 const SignIn = () => {
+  const navigation = useNavigation();
   // Form Validation
   const SignInSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Required'),
@@ -39,6 +41,11 @@ const SignIn = () => {
       setIconEye(true);
     }
   };
+
+  // Login
+  const login = form => {
+    navigation.navigate('HomePage');
+  };
   return (
     <ScrollView>
       <View style={styles.containerImage}>
@@ -61,7 +68,7 @@ const SignIn = () => {
           }}
           validationSchema={SignInSchema}
           onSubmit={values => {
-            console.log(values);
+            login(values);
           }}>
           {({
             handleChange,
@@ -121,14 +128,16 @@ const SignIn = () => {
         </Formik>
       </View>
       <View style={styles.containerText2}>
-        <Text style={styles.text2}>
-          Forgot your password? <Text style={styles.innerText2}>Reset now</Text>
-        </Text>
+        <Text style={styles.text2}>Forgot your password? </Text>
+        <Pressable onPress={() => navigation.navigate('ForgotPassword')}>
+          <Text style={styles.innerText2}>Reset now</Text>
+        </Pressable>
       </View>
       <View style={styles.containerText2}>
-        <Text style={styles.text2}>
-          Don'nt have an account? <Text style={styles.innerText2}>Sign Up</Text>
-        </Text>
+        <Text style={styles.text2}>Don't have an account? </Text>
+        <Pressable onPress={() => navigation.navigate('SignUp')}>
+          <Text style={styles.innerText2}>Sign Up</Text>
+        </Pressable>
       </View>
     </ScrollView>
   );
@@ -193,6 +202,9 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   containerText2: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: 20,
     marginBottom: 10,
   },
@@ -201,6 +213,7 @@ const styles = StyleSheet.create({
   },
   innerText2: {
     color: '#00005C',
+    textDecorationLine: 'underline',
   },
   errorText: {
     color: 'red',

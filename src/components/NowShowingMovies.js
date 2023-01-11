@@ -11,7 +11,6 @@ import {
 import http from '../helpers/http';
 
 const NowShowing = () => {
-  const nowShow = [1, 2, 3];
   // Get Now Showing Movies
   const [nowShowingMovies, setNowShowingMovies] = React.useState([]);
   React.useEffect(() => {
