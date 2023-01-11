@@ -17,6 +17,7 @@ import {useNavigation} from '@react-navigation/native';
 import http from '../helpers/http';
 import {useDispatch} from 'react-redux';
 import {login as loginAction} from '../redux/reducers/auth';
+import {Spinner} from 'native-base';
 
 const SignIn = () => {
   const navigation = useNavigation();
@@ -47,15 +48,19 @@ const SignIn = () => {
   };
 
   // Login
+  const [successMessage, setSuccessMessage] = React.useState(null);
+  const [errorMessage, setErrorMessage] = React.useState(null);
   const login = async form => {
     try {
       const response = await http().post('/auth/login', form);
       const token = response?.data?.results;
-      console.log(response?.data);
-      dispatch(loginAction(token));
-      navigation.navigate('HomePage');
+      setSuccessMessage(response?.data?.message);
+      setTimeout(() => {
+        dispatch(loginAction(token));
+      }, 1000);
     } catch (error) {
       console.log(error);
+      setErrorMessage(error?.response?.data?.message);
     }
   };
   return (
@@ -72,6 +77,21 @@ const SignIn = () => {
           Sign in with your data that you entered during your registration
         </Text>
       </View>
+      {successMessage && (
+        <>
+          <View style={styles.alertSuccess}>
+            <Icon name="alert-circle" size={20} color="black" />
+            <Text style={styles.alertMessage}>{successMessage}</Text>
+          </View>
+          <Spinner style={{marginTop: 20}} size="lg" />
+        </>
+      )}
+      {errorMessage && (
+        <View style={styles.alertError}>
+          <Icon name="alert-triangle" size={20} color="black" />
+          <Text style={styles.alertMessage}>{errorMessage}</Text>
+        </View>
+      )}
       <View style={styles.containerForm}>
         <Formik
           initialValues={{
@@ -98,6 +118,7 @@ const SignIn = () => {
                   keyboardType="text"
                   onChangeText={handleChange('email')}
                   onBlur={handleBlur('email')}
+                  onFocus={() => setErrorMessage(false)}
                   value={values.email}
                   autoCapitalize="none"
                   style={styles.input}
@@ -114,6 +135,7 @@ const SignIn = () => {
                   keyboardType="text"
                   onChangeText={handleChange('password')}
                   onBlur={handleBlur('password')}
+                  onFocus={() => setErrorMessage(false)}
                   value={values.password}
                   secureTextEntry={isPasswordSecure ? true : false}
                   autoCapitalize="none"
@@ -156,6 +178,34 @@ const SignIn = () => {
 };
 
 const styles = StyleSheet.create({
+  alertSuccess: {
+    flexDirection: 'row',
+    marginHorizontal: 20,
+    marginTop: 30,
+    borderWidth: 1,
+    height: 50,
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    backgroundColor: '#42BA96',
+    borderColor: 'green',
+  },
+  alertError: {
+    flexDirection: 'row',
+    marginHorizontal: 20,
+    marginTop: 30,
+    borderWidth: 1,
+    height: 50,
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    backgroundColor: '#FF4D4D',
+    borderColor: 'red',
+  },
+  alertMessage: {
+    color: 'black',
+    marginLeft: 20,
+  },
   containerImage: {
     paddingHorizontal: 20,
     marginTop: 50,

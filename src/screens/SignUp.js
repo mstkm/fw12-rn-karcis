@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {
   StyleSheet,
@@ -16,8 +17,13 @@ import YupPasword from 'yup-password';
 YupPasword(Yup);
 import Icon from 'react-native-vector-icons/Feather';
 import {useNavigation} from '@react-navigation/native';
+import http from '../helpers/http';
+import {useDispatch} from 'react-redux';
+import {login as loginAction} from '../redux/reducers/auth';
+import {Spinner} from 'native-base';
 
 const SignUp = () => {
+  const dispatch = useDispatch();
   const navigation = useNavigation();
   // Form Validation
   const phoneRegExpID = /^(^08)(\d{8,10})$/;
@@ -55,6 +61,23 @@ const SignUp = () => {
       setIconEye(true);
     }
   };
+
+  // Handle Sign Up
+  const [successMessage, setSuccessMessage] = React.useState(null);
+  const [errorMessage, setErrorMessage] = React.useState(null);
+  const handleSignUp = async form => {
+    try {
+      const response = await http().post('/auth/register', form);
+      const token = response?.data?.results;
+      setSuccessMessage(response?.data?.message);
+      setTimeout(() => {
+        dispatch(loginAction(token));
+      }, 1000);
+    } catch (error) {
+      console.log(error);
+      setErrorMessage('Register Failed. ' + error?.response?.data?.message);
+    }
+  };
   const screenHeight = Dimensions.get('window').height;
   return (
     <View style={{height: screenHeight}}>
@@ -70,6 +93,21 @@ const SignUp = () => {
             <Text style={styles.h1}>Sign Up</Text>
             <Text style={styles.text}>Fill your additional details</Text>
           </View>
+          {successMessage && (
+            <>
+              <View style={styles.alertSuccess}>
+                <Icon name="alert-circle" size={20} color="black" />
+                <Text style={styles.alertMessage}>{successMessage}</Text>
+              </View>
+              <Spinner style={{marginTop: 20}} size="lg" />
+            </>
+          )}
+          {errorMessage && (
+            <View style={styles.alertError}>
+              <Icon name="alert-triangle" size={20} color="black" />
+              <Text style={styles.alertMessage}>{errorMessage}</Text>
+            </View>
+          )}
           <View style={styles.containerForm}>
             <Formik
               initialValues={{
@@ -81,7 +119,7 @@ const SignUp = () => {
               }}
               validationSchema={SignUpSchema}
               onSubmit={values => {
-                console.log(values);
+                handleSignUp(values);
               }}>
               {({
                 handleChange,
@@ -143,6 +181,7 @@ const SignUp = () => {
                       name="email"
                       keyboardType="text"
                       onChangeText={handleChange('email')}
+                      onFocus={() => setErrorMessage(false)}
                       onBlur={handleBlur('email')}
                       value={values.email}
                       autoCapitalize="none"
@@ -198,6 +237,34 @@ const SignUp = () => {
 };
 
 const styles = StyleSheet.create({
+  alertSuccess: {
+    flexDirection: 'row',
+    marginHorizontal: 20,
+    marginTop: 30,
+    borderWidth: 1,
+    height: 50,
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    backgroundColor: '#42BA96',
+    borderColor: 'green',
+  },
+  alertError: {
+    flexDirection: 'row',
+    marginHorizontal: 20,
+    marginTop: 30,
+    borderWidth: 1,
+    height: 50,
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    backgroundColor: '#FF4D4D',
+    borderColor: 'red',
+  },
+  alertMessage: {
+    color: 'black',
+    marginLeft: 20,
+  },
   containerImage: {
     paddingHorizontal: 20,
     paddingTop: 50,
