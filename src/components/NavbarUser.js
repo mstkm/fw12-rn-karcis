@@ -9,8 +9,11 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import {useNavigation} from '@react-navigation/native';
+import {useDispatch} from 'react-redux';
+import {logout as logoutAction} from '../redux/reducers/auth';
 
 const NavbarUser = () => {
+  const dispatch = useDispatch();
   const navigation = useNavigation();
   const [isShowMenu, setIsShowMenu] = React.useState(false);
   const showMenu = () => {
@@ -19,6 +22,11 @@ const NavbarUser = () => {
     } else {
       setIsShowMenu(false);
     }
+  };
+
+  // Logout
+  const handleLogout = () => {
+    dispatch(logoutAction());
   };
   return (
     <View style={styles.navbarUserWrapper}>
@@ -73,7 +81,7 @@ const NavbarUser = () => {
                 style={styles.listMenuWrapper}>
                 <Text style={styles.textListMenu}>Profile</Text>
               </Pressable>
-              <Pressable style={styles.listMenuWrapper}>
+              <Pressable onPress={handleLogout} style={styles.listMenuWrapper}>
                 <Text style={styles.textListMenu}>Logout</Text>
               </Pressable>
               <View style={styles.textFooterMenuWrapper}>

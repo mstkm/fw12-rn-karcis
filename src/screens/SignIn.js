@@ -14,9 +14,13 @@ import YupPasword from 'yup-password';
 YupPasword(Yup);
 import Icon from 'react-native-vector-icons/Feather';
 import {useNavigation} from '@react-navigation/native';
+import http from '../helpers/http';
+import {useDispatch} from 'react-redux';
+import {login as loginAction} from '../redux/reducers/auth';
 
 const SignIn = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   // Form Validation
   const SignInSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Required'),
@@ -43,8 +47,16 @@ const SignIn = () => {
   };
 
   // Login
-  const login = form => {
-    navigation.navigate('HomePage');
+  const login = async form => {
+    try {
+      const response = await http().post('/auth/login', form);
+      const token = response?.data?.results;
+      console.log(response?.data);
+      dispatch(loginAction(token));
+      navigation.navigate('HomePage');
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <ScrollView>
@@ -179,6 +191,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     borderRadius: 4,
+    fontSize: 16,
   },
   icon: {
     position: 'absolute',

@@ -233,6 +233,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 10,
     borderRadius: 4,
+    fontSize: 16,
   },
   icon: {
     position: 'absolute',
