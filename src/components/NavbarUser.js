@@ -11,6 +11,7 @@ import Icon from 'react-native-vector-icons/Feather';
 import {useNavigation} from '@react-navigation/native';
 import {useDispatch} from 'react-redux';
 import {logout as logoutAction} from '../redux/reducers/auth';
+import {transactionLogout as transactionLogoutAction} from '../redux/reducers/transaction';
 
 const NavbarUser = () => {
   const dispatch = useDispatch();
@@ -27,6 +28,7 @@ const NavbarUser = () => {
   // Logout
   const handleLogout = () => {
     dispatch(logoutAction());
+    dispatch(transactionLogoutAction());
   };
   return (
     <View style={styles.navbarUserWrapper}>

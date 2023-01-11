@@ -7,58 +7,58 @@ import {
   Image,
   Pressable,
 } from 'react-native';
+import http from '../helpers/http';
 import Month from './Month';
+import {useNavigation} from '@react-navigation/native';
 
 const UpcomingMovies = () => {
+  const navigation = useNavigation();
+  // Get Upcoming Movies
+  const [upcomingMovies, setUpcomingMovies] = React.useState([]);
+  React.useEffect(() => {
+    getUpcomingMovies().then(response => {
+      setUpcomingMovies(response?.data?.results);
+    });
+  }, []);
+  const getUpcomingMovies = async () => {
+    try {
+      const response = await http().get('/movies/upcoming');
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <>
       <View style={styles.ucomingMoviesWrapper}>
         <View style={styles.textUpcomingMoviesWrapper}>
           <Text style={styles.textUpcomingMovies1}>Upcoming Movies</Text>
-          <Text style={styles.textUpcomingMovies2}>view all</Text>
+          <Pressable onPress={() => navigation.navigate('ViewAll')}>
+            <Text style={styles.textUpcomingMovies2}>view all</Text>
+          </Pressable>
         </View>
         <Month />
         <View>
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-            <View style={styles.upcomingMovie}>
-              <Image
-                source={require('../images/tenet.png')}
-                style={styles.imageUpcomingMovie}
-              />
-              <View style={styles.detailsWrapper}>
-                <Text style={styles.textTitle}>Tenet</Text>
-                <Text style={styles.textGenre}>Action, Adventure, Sci-fi</Text>
-                <Pressable style={styles.btnDetails}>
-                  <Text style={styles.textBtnDetails}>Details</Text>
-                </Pressable>
-              </View>
-            </View>
-            <View style={styles.upcomingMovie}>
-              <Image
-                source={require('../images/tenet.png')}
-                style={styles.imageUpcomingMovie}
-              />
-              <View style={styles.detailsWrapper}>
-                <Text style={styles.textTitle}>Tenet</Text>
-                <Text style={styles.textGenre}>Action, Adventure, Sci-fi</Text>
-                <Pressable style={styles.btnDetails}>
-                  <Text style={styles.textBtnDetails}>Details</Text>
-                </Pressable>
-              </View>
-            </View>
-            <View style={styles.upcomingMovie}>
-              <Image
-                source={require('../images/tenet.png')}
-                style={styles.imageUpcomingMovie}
-              />
-              <View style={styles.detailsWrapper}>
-                <Text style={styles.textTitle}>Tenet</Text>
-                <Text style={styles.textGenre}>Action, Adventure, Sci-fi</Text>
-                <Pressable style={styles.btnDetails}>
-                  <Text style={styles.textBtnDetails}>Details</Text>
-                </Pressable>
-              </View>
-            </View>
+            {upcomingMovies?.map(movie => {
+              return (
+                <View key={String(movie?.id)} style={styles.upcomingMovie}>
+                  <Image
+                    source={{uri: movie?.picture}}
+                    style={styles.imageUpcomingMovie}
+                  />
+                  <View style={styles.detailsWrapper}>
+                    <Text numberOfLines={1} style={styles.textTitle}>
+                      {movie?.title}
+                    </Text>
+                    <Text style={styles.textGenre}>{movie?.genre}</Text>
+                    <Pressable style={styles.btnDetails}>
+                      <Text style={styles.textBtnDetails}>Details</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              );
+            })}
           </ScrollView>
         </View>
       </View>
@@ -90,18 +90,23 @@ const styles = StyleSheet.create({
   upcomingMovie: {
     borderColor: '#DEDEDE',
     borderWidth: 1,
-    width: 165,
-    paddingHorizontal: 10,
+    width: 173,
+    padding: 10,
     borderRadius: 6,
     marginRight: 16,
     marginTop: 30,
   },
   imageUpcomingMovie: {
     resizeMode: 'contain',
-    width: '100%',
+    width: 150,
+    height: 230,
+    borderRadius: 4,
+    marginTop: 8,
+    marginBottom: 15,
   },
   detailsWrapper: {
     alignItems: 'center',
+    height: 120,
   },
   textTitle: {
     textAlign: 'center',
@@ -110,6 +115,7 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   textGenre: {
+    flex: 1,
     textAlign: 'center',
   },
   btnDetails: {
@@ -121,7 +127,7 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 4,
     marginTop: 20,
-    marginBottom: 15,
+    marginBottom: 10,
   },
   textBtnDetails: {
     color: '#00005C',

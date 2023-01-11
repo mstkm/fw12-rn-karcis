@@ -9,8 +9,13 @@ import {
   Pressable,
 } from 'react-native';
 import http from '../helpers/http';
+import {useNavigation} from '@react-navigation/native';
+import {useDispatch} from 'react-redux';
+import {transaction as transactionAction} from '../redux/reducers/transaction';
 
 const NowShowing = () => {
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
   // Get Now Showing Movies
   const [nowShowingMovies, setNowShowingMovies] = React.useState([]);
   React.useEffect(() => {
@@ -18,42 +23,54 @@ const NowShowing = () => {
   }, []);
   const getNowShowing = async () => {
     try {
-      const response = await http().get('/movies/nowShowing');
+      const response = await http().get(
+        '/movies/nowShowing?limit=&page=&search&sort=DESC&sortBy=title',
+      );
       setNowShowingMovies(response?.data?.results);
     } catch (error) {
       console.log(error);
     }
   };
   const [selectedMovie, setSelectedMovie] = React.useState(null);
+
+  // Handle Details
+  const handleDetails = movieId => {
+    dispatch(transactionAction({movieId}));
+    navigation.navigate('MovieDetails');
+  };
   return (
     <View style={styles.wrapper}>
       <View style={styles.nowShowingWrapper}>
         <View style={styles.textNowShowingWrapper}>
           <Text style={styles.textNowShowing1}>Now Showing</Text>
-          <Text style={styles.textNowShowing2}>view all</Text>
+          <Pressable onPress={() => navigation.navigate('ViewAll')}>
+            <Text style={styles.textNowShowing2}>view all</Text>
+          </Pressable>
         </View>
       </View>
       <View style={styles.listNowShowingWrapper}>
         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-          {nowShowingMovies.map((movie, index) => {
+          {nowShowingMovies?.map((movie, index) => {
             return (
               <View key={String(index)}>
                 <Pressable
-                  onPress={() => setSelectedMovie(index)}
+                  onPress={() => setSelectedMovie(movie?.id)}
                   style={{
-                    borderColor: selectedMovie === index ? '#DEDEDE' : 'white',
+                    borderColor:
+                      selectedMovie === movie?.id ? '#DEDEDE' : 'white',
                     backgroundColor:
-                      selectedMovie === index ? 'white' : '#D6D8E7',
+                      selectedMovie === movie?.id ? 'white' : '#D6D8E7',
                     borderTopWidth: 1,
                     borderLeftWidth: 1,
                     borderRightWidth: 1,
-                    borderBottomWidth: selectedMovie === index ? 0 : 1,
+                    borderBottomWidth: selectedMovie === movie?.id ? 0 : 1,
                     marginRight: 16,
                     padding: 10,
                     borderTopStartRadius: 6,
                     borderTopEndRadius: 6,
-                    borderBottomStartRadius: selectedMovie === index ? 0 : 6,
-                    borderBottomEndRadius: selectedMovie === index ? 0 : 6,
+                    borderBottomStartRadius:
+                      selectedMovie === movie?.id ? 0 : 6,
+                    borderBottomEndRadius: selectedMovie === movie?.id ? 0 : 6,
                   }}>
                   <Image
                     source={{
@@ -62,21 +79,23 @@ const NowShowing = () => {
                     style={styles.imageNowShowing}
                   />
                 </Pressable>
-                {selectedMovie === index ? (
-                  <View style={styles.detailsWrapper}>
-                    <Text
-                      style={styles.textTitle}
-                      numberOfLines={1}
-                      ellipsizeMode="tail">
-                      {movie?.title}
-                    </Text>
-                    <Text style={styles.textGenre}>{movie?.genre}</Text>
-                    <Pressable style={styles.btnDetails}>
-                      <Text style={styles.textBtnDetails}>Details</Text>
-                    </Pressable>
-                  </View>
-                ) : (
-                  false
+                {selectedMovie === movie?.id && (
+                  <>
+                    <View style={styles.detailsWrapper}>
+                      <Text
+                        style={styles.textTitle}
+                        numberOfLines={1}
+                        ellipsizeMode="tail">
+                        {movie?.title}
+                      </Text>
+                      <Text style={styles.textGenre}>{movie?.genre}</Text>
+                      <Pressable
+                        onPress={() => handleDetails(movie?.id)}
+                        style={styles.btnDetails}>
+                        <Text style={styles.textBtnDetails}>Details</Text>
+                      </Pressable>
+                    </View>
+                  </>
                 )}
               </View>
             );
@@ -125,22 +144,14 @@ const styles = StyleSheet.create({
   imageNowShowing: {
     resizeMode: 'contain',
     width: 150,
-    height: 230,
+    height: 220,
     borderRadius: 4,
-  },
-  line: {
-    position: 'absolute',
-    width: 169,
-    left: 1,
-    bottom: 100,
-    height: 10,
-    borderTopColor: 'black',
-    borderTopWidth: 3,
   },
   detailsWrapper: {
     alignItems: 'center',
     backgroundColor: 'white',
     width: 172,
+    height: 120,
     paddingHorizontal: 10,
     borderLeftWidth: 1,
     borderRightWidth: 1,
@@ -159,6 +170,7 @@ const styles = StyleSheet.create({
   },
   textGenre: {
     textAlign: 'center',
+    flex: 1,
   },
   btnDetails: {
     borderColor: '#00005C',

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React from 'react';
 import {
   Box,
@@ -18,19 +19,90 @@ import Icon from 'react-native-vector-icons/Feather';
 import CalendarPicker from 'react-native-calendar-picker';
 import moment from 'moment';
 import Footer from '../components/Footer';
+import {useSelector} from 'react-redux';
+import http from '../helpers/http';
+import {useDispatch} from 'react-redux';
+import {useNavigation} from '@react-navigation/native';
+import {transaction as transactionAction} from '../redux/reducers/transaction';
 
 const MovieDetails = () => {
-  const [selectedDate, setSelectedDate] = React.useState(null);
-  const date = String(selectedDate).split('T')[0];
-  const minDate = new Date(); // Today
-  const maxDate = new Date(2023, 6, 3);
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
   const [showModal, setShowModal] = React.useState(false);
   const {isOpen, onOpen, onClose} = useDisclose();
+  const [selectedDate, setSelectedDate] = React.useState(null);
+  const minDate = new Date(); // Today
+  const maxDate = new Date(2023, 6, 3);
 
   const [selectedCity, setSelectedCity] = React.useState('');
 
   const times = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'];
   const [selectedTime, setSelectedTime] = React.useState(null);
+  const [selectedCinema, setSelectedCinema] = React.useState(null);
+  const handleSelectTime = (time, cinemaId) => {
+    setSelectedTime(time);
+    setSelectedCinema(cinemaId);
+  };
+
+  // Get Movie By Id
+  React.useEffect(() => {
+    getMovie().then(response => {
+      setMovie(response?.data?.results);
+    });
+  }, []);
+  const movieId = useSelector(state => state?.transaction?.movieId);
+  const [movie, setMovie] = React.useState({});
+  const movieTitle = movie?.title;
+  const getMovie = async () => {
+    try {
+      const response = await http().get(`/movies/${movieId}`);
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Get Movie Schedules
+  const [movieSchedules, setMovieSchedules] = React.useState([]);
+  React.useEffect(() => {
+    getMovieSchedules().then(response => {
+      setMovieSchedules(response?.data?.results);
+    });
+  }, [movieId, selectedCity, selectedDate]);
+  const getMovieSchedules = async () => {
+    try {
+      const response = await http().get(
+        `/movieSchedule/listMovieSChedule/${movieId}/${selectedCity}/${selectedDate}`,
+      );
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Handle Book Now
+  const handleBookNow = (
+    cinemaId,
+    cinemaName,
+    price,
+    movieScheduleId,
+    cinemaPicture,
+  ) => {
+    dispatch(
+      transactionAction({
+        bookingDate: selectedDate,
+        cinemaId,
+        cinemaName,
+        cinemaPicture,
+        price,
+        movieScheduleId,
+        bookingTime: selectedTime,
+        movieId,
+        movieTitle,
+      }),
+    );
+    navigation.navigate('OrderPage');
+  };
   return (
     <NativeBaseProvider>
       <ScrollView stickyHeaderIndices={[0]} stickyHeaderHiddenOnScroll={true}>
@@ -44,54 +116,51 @@ const MovieDetails = () => {
               borderRadius="8"
               borderColor="#DEDEDE">
               <Image
-                source={require('../images/spiderman.png')}
+                source={{uri: movie?.picture}}
                 alt="spiderman"
                 width="160"
+                height="240"
+                borderRadius={8}
                 resizeMode="contain"
               />
             </Box>
           </Box>
-          <Stack space={2}>
+          <Stack space={1}>
             <Text textAlign="center" fontSize="16" fontWeight="bold">
-              Spider-Man: Homecoming
+              {movie?.title}
             </Text>
-            <Text textAlign="center">Adventure, Action, Sci-Fi</Text>
+            <Text textAlign="center">{movie?.genre}</Text>
           </Stack>
           <Stack space={3}>
             <HStack space={20}>
               <Box width={100}>
                 <Text>Release date</Text>
-                <Text fontWeight="bold">June 28, 2017</Text>
+                <Text fontWeight="bold">
+                  {moment(movie?.releaseDate).format('ll')}
+                </Text>
               </Box>
               <Box width={160}>
                 <Text>Directed by</Text>
-                <Text fontWeight="bold">Jon Watss</Text>
+                <Text fontWeight="bold">{movie?.director}</Text>
               </Box>
             </HStack>
             <HStack space={20}>
               <Box width={100}>
                 <Text>Duration</Text>
-                <Text fontWeight="bold">2 hrs 13 min</Text>
+                <Text fontWeight="bold">
+                  {Number(String(movie?.duration).split(':')[0])} hrs{' '}
+                  {Number(String(movie?.duration).split(':')[1])} min
+                </Text>
               </Box>
               <Box width={160}>
                 <Text>Casts</Text>
-                <Text fontWeight="bold">
-                  Tom Holland, Robert Downey Jr., etc.
-                </Text>
+                <Text fontWeight="bold">{movie?.casts}</Text>
               </Box>
             </HStack>
           </Stack>
           <Stack space={3} borderTopWidth="0.5" borderColor="#D6D8E7" pt={8}>
             <Text fontWeight="bold">Synopsis</Text>
-            <Text>
-              Thrilled by his experience with the Avengers, Peter returns home,
-              where he lives with his Aunt May, under the watchful eye of his
-              new mentor Tony Stark, Peter tries to fall back into his normal
-              daily routine - distracted by thoughts of proving himself to be
-              more than just your friendly neighborhood Spider-Man - but when
-              the Vulture emerges as a new villain, everything that Peter holds
-              most important will be threatened.{' '}
-            </Text>
+            <Text>{movie?.synopsis}</Text>
           </Stack>
         </Stack>
         <Stack px="5" bg="#F5F6F8" py="10">
@@ -115,7 +184,7 @@ const MovieDetails = () => {
               height={35}>
               <Icon name="calendar" size={18} />
               <Text ml="3" flex={1}>
-                {date ? date : 'Set a date'}
+                {selectedDate ? selectedDate : 'Set a date'}
               </Text>
               <Icon name="chevron-down" size={18} />
             </Pressable>
@@ -134,7 +203,9 @@ const MovieDetails = () => {
                       selectedDayColor="#00005C"
                       selectedDayTextColor="#FFFFFF"
                       onDateChange={value =>
-                        setSelectedDate(moment(value).format())
+                        setSelectedDate(
+                          String(moment(value).format()).split('T')[0],
+                        )
                       }
                     />
                   </Box>
@@ -171,60 +242,98 @@ const MovieDetails = () => {
               </Actionsheet.Content>
             </Actionsheet>
           </Box>
-          <Box bg="white" borderRadius={8} alignItems="center">
-            <Box alignItems="center" py="5">
-              <Image
-                source={require('../images/ebv.id.png')}
-                alt="ebv.id"
-                resizeMode="contain"
-                width={100}
-                height={50}
-                mb="1"
-              />
-              <Text>Whatever street No.12, South Purwokerto</Text>
-            </Box>
-            <Box
-              flexDirection="row"
-              flexWrap="wrap"
-              borderTopWidth="0.5"
-              py="5"
-              px="5">
-              {times.map((time, index) => {
-                return (
-                  <Pressable
-                    key={String(index)}
-                    width={75}
-                    py="1.5"
-                    onPress={() => setSelectedTime(time)}>
-                    <Text
-                      color={selectedTime === time ? '#00005C' : 'black'}
-                      fontWeight={selectedTime === time ? 'bold' : ''}>
-                      {time + (time.split(':')[0] < 12 ? 'am' : 'pm')}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </Box>
-            <Box flexDirection="row" px="5" py="3">
-              <Text flex={1} fontSize={16}>
-                Price
-              </Text>
-              <Text fontSize={16} fontWeight="bold">
-                Rp50.000
-              </Text>
-            </Box>
-            <Box width="full" px="5" pt="3" pb="8">
-              <Button
-                bg="#00005C"
-                borderColor="#00005C"
-                height={35}
-                borderRadius={4}
+          {movieSchedules?.map(movieSchedule => {
+            return (
+              <Box
+                key={String(movieSchedule?.id)}
+                bg="white"
+                borderRadius={8}
                 alignItems="center"
-                justifyContent="center">
-                <Text color="white">Book Now</Text>
-              </Button>
-            </Box>
-          </Box>
+                mb="5">
+                <Box alignItems="center" py="5">
+                  <Image
+                    source={{
+                      uri: movieSchedule?.cinemaPicture,
+                    }}
+                    alt={movieSchedule?.cinemaName}
+                    resizeMode="contain"
+                    width={100}
+                    height={50}
+                    mb="1"
+                  />
+                  <Text>{movieSchedule?.address}</Text>
+                </Box>
+                <Box
+                  flexDirection="row"
+                  flexWrap="wrap"
+                  borderTopWidth="0.5"
+                  py="5"
+                  px="5">
+                  {movieSchedule?.time.sort().map((time, index) => {
+                    return (
+                      <Pressable
+                        key={String(index)}
+                        width={75}
+                        py="1.5"
+                        onPress={() =>
+                          handleSelectTime(time, movieSchedule?.id)
+                        }>
+                        <Text
+                          color={
+                            selectedTime === time &&
+                            selectedCinema === movieSchedule?.id
+                              ? '#00005C'
+                              : 'black'
+                          }
+                          fontWeight={
+                            selectedTime === time &&
+                            selectedCinema === movieSchedule?.id
+                              ? 'bold'
+                              : ''
+                          }>
+                          {time.split(':')[0] +
+                            ':' +
+                            time.split(':')[1] +
+                            (time.split(':')[0] < 12 ? 'am' : 'pm')}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </Box>
+                <Box flexDirection="row" px="5" py="3">
+                  <Text flex={1} fontSize={16}>
+                    Price
+                  </Text>
+                  <Text fontSize={16} fontWeight="bold">
+                    Rp
+                    {new Intl.NumberFormat('en-DE').format(
+                      movieSchedule?.price,
+                    )}
+                  </Text>
+                </Box>
+                <Box width="full" px="5" pt="3" pb="8">
+                  <Button
+                    onPress={() =>
+                      handleBookNow(
+                        movieSchedule?.cinemaId,
+                        movieSchedule?.cinemaName,
+                        movieSchedule?.price,
+                        movieSchedule?.id,
+                        movieSchedule?.cinemaPicture,
+                      )
+                    }
+                    bg="#00005C"
+                    borderColor="#00005C"
+                    py="3"
+                    borderRadius={4}
+                    alignItems="center"
+                    justifyContent="center">
+                    <Text color="white">Book Now</Text>
+                  </Button>
+                </Box>
+              </Box>
+            );
+          })}
         </Stack>
         <Footer />
       </ScrollView>

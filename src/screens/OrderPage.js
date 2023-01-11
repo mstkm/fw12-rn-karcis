@@ -13,8 +13,25 @@ import React from 'react';
 import Icon from 'react-native-vector-icons/Feather';
 import Footer from '../components/Footer';
 import NavbarUser from '../components/NavbarUser';
+import {useDispatch, useSelector} from 'react-redux';
+import moment from 'moment';
+import {transaction as transactionAction} from '../redux/reducers/transaction';
+import {useNavigation} from '@react-navigation/native';
 
 const OrderPage = () => {
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const {
+    bookingDate,
+    bookingTime,
+    cinemaId,
+    cinemaName,
+    cinemaPicture,
+    movieId,
+    movieScheduleId,
+    movieTitle,
+    price,
+  } = useSelector(state => state?.transaction);
   const alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
   const number1 = [1, 2, 3, 4, 5, 6, 7];
   const number2 = [8, 9, 10, 11, 12, 13, 14];
@@ -25,6 +42,25 @@ const OrderPage = () => {
     } else {
       setSelectedSeat(selectedSeat.filter(el => el !== seat));
     }
+  };
+
+  // Handle Checkout
+  const handleCheckout = () => {
+    dispatch(
+      transactionAction({
+        bookingDate,
+        bookingTime,
+        cinemaId,
+        cinemaName,
+        cinemaPicture,
+        movieId,
+        movieScheduleId,
+        movieTitle,
+        price,
+        seatNum: selectedSeat,
+      }),
+    );
+    navigation.navigate('PaymentPage');
   };
   return (
     <NativeBaseProvider>
@@ -38,13 +74,14 @@ const OrderPage = () => {
             <Box width="full" height="2" bg="#9570FE" borderRadius="8" />
             <HStack space={3} justifyContent="center" pb="5" pt="3">
               <Box>
-                {alphabet.map(alp => {
+                {alphabet.map((alp, i) => {
                   return (
-                    <Box flexDirection="row">
-                      {number1.map(num => {
+                    <Box key={String(i)} flexDirection="row">
+                      {number1.map((num, index) => {
                         const seat = alp + num;
                         return (
                           <Pressable
+                            key={String(index)}
                             borderWidth={1}
                             borderRadius={4}
                             w="18px"
@@ -64,13 +101,14 @@ const OrderPage = () => {
                 })}
               </Box>
               <Box>
-                {alphabet.map(alp => {
+                {alphabet.map((alp, i) => {
                   return (
-                    <Box flexDirection="row">
-                      {number2.map(num => {
+                    <Box key={String(i)} flexDirection="row">
+                      {number2.map((num, index) => {
                         const seat = alp + num;
                         return (
                           <Pressable
+                            key={String(index)}
                             borderWidth={1}
                             borderRadius={4}
                             w="18px"
@@ -149,38 +187,53 @@ const OrderPage = () => {
           </Text>
           <Box p="5" bg="white" alignItems="center" borderRadius={8}>
             <Image
-              source={require('../images/cineone21.png')}
-              alt="cineone21"
+              source={{uri: cinemaPicture}}
+              alt={cinemaName}
               width={120}
               height={50}
               resizeMode="contain"
             />
             <Text fontSize={18} mb={1}>
-              CineOne21 Cinema
+              {cinemaName} Cinema
             </Text>
-            <Text mb="5">Spider-Man: Homecoming</Text>
+            <Text mb="5" fontSize={18} fontWeight="bold">
+              {movieTitle}
+            </Text>
             <HStack mb="2">
-              <Text flex={1}>Tuesday, 07 July 2020</Text>
-              <Text fontWeight="bold">02:00pm</Text>
+              <Text flex={1}>{moment(bookingDate).format('ll')}</Text>
+              <Text fontWeight="bold">
+                {bookingTime.split(':')[0] +
+                  ':' +
+                  bookingTime.split(':')[1] +
+                  (bookingTime.split(':')[0] < 12 ? 'am' : 'pm')}
+              </Text>
             </HStack>
             <HStack mb="2">
               <Text flex={1}>One ticket price</Text>
-              <Text fontWeight="bold">Rp50.000</Text>
+              <Text fontWeight="bold">
+                Rp{new Intl.NumberFormat('en-DE').format(price)}
+              </Text>
             </HStack>
             <HStack mb="5">
               <Text flex={1}>Seat choosed</Text>
-              <Text fontWeight="bold">C4, C5, C6</Text>
+              <Text fontWeight="bold">
+                {selectedSeat.length ? selectedSeat.join(', ') : '-'}
+              </Text>
             </HStack>
             <HStack pt="5" borderTopWidth={1} borderTopColor="#E6E6E6">
               <Text flex={1} fontSize={16} fontWeight="bold">
                 Total Payment
               </Text>
               <Text fontSize={16} color="#00005C" fontWeight="bold">
-                Rp150.000
+                Rp
+                {new Intl.NumberFormat('en-DE').format(
+                  selectedSeat.length * price,
+                )}
               </Text>
             </HStack>
           </Box>
           <Button
+            onPress={handleCheckout}
             my="8"
             width="full"
             height={45}

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Box,
   HStack,
@@ -18,8 +19,34 @@ import YupPasword from 'yup-password';
 YupPasword(Yup);
 import Icon from 'react-native-vector-icons/Feather';
 import Footer from '../components/Footer';
+import {useNavigation} from '@react-navigation/native';
+import {useSelector, useDispatch} from 'react-redux';
+import jwt_decode from 'jwt-decode';
+import http from '../helpers/http';
+import {logout as logoutAction} from '../redux/reducers/auth';
+import {transactionLogout as transactionLogoutAction} from '../redux/reducers/transaction';
 
 const Profile = () => {
+  const token = useSelector(state => state?.auth?.token);
+  const {id} = jwt_decode(token);
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  // Get user by id
+  const [user, setUser] = React.useState({});
+  React.useEffect(() => {
+    getUser().then(response => {
+      setUser(response?.data?.results);
+    });
+  }, []);
+  const getUser = async () => {
+    try {
+      const response = await http(token).get(`/users/${id}`);
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // Form Validation
   const ResetPasswordSchema = Yup.object().shape({
     password: Yup.string()
@@ -56,6 +83,67 @@ const Profile = () => {
       setIconEyeConfirm(true);
     }
   };
+
+  // handleLogout
+  const handleLogout = () => {
+    dispatch(logoutAction());
+    dispatch(transactionLogoutAction());
+  };
+
+  // Get data for update
+  const [fullName, setFullName] = React.useState('');
+  const firstName = String(fullName).split(' ')[0];
+  const lastName = String(fullName).split(' ').slice(1).join(' ');
+  const [email, setEmail] = React.useState('');
+  const [phoneNumber, setPhoneNumber] = React.useState('');
+
+  // Update Data User
+  const [successMessage, setSuccessMessage] = React.useState('');
+  const updateDataUser = async () => {
+    try {
+      const form = new FormData();
+      // form.append('picture', picture)
+      // form.append('firstName', firstName);
+      // form.append('lastName', lastName);
+      // form.append('email', email);
+      // form.append('phoneNumber', phoneNumber);
+      const response = await http(token).patch('/profile/update', {
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
+      });
+      setSuccessMessage('Successfully updated');
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Update Password User
+  const [errorPassword, setErrorPassword] = React.useState('');
+  const [passwordSuccessMessage, setPasswordSuccessMessage] =
+    React.useState('');
+  const handleUpdatePassword = async values => {
+    const {password, confirmPassword} = values;
+    if (password === confirmPassword) {
+      try {
+        const response = await http(token).patch('/profile/update', {
+          password,
+        });
+        setPasswordSuccessMessage('Successfully updated');
+        return response;
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      setErrorPassword("Password and confirm password doesn't match");
+    }
+  };
+  const removeMessage = () => {
+    setErrorPassword('');
+    setPasswordSuccessMessage('');
+  };
   return (
     <NativeBaseProvider>
       <ScrollView stickyHeaderIndices={[0]} stickyHeaderHiddenOnScroll={true}>
@@ -72,7 +160,9 @@ const Profile = () => {
               Details Account
             </Text>
           </Pressable>
-          <Pressable width="50%">
+          <Pressable
+            onPress={() => navigation.navigate('OrderHistory')}
+            width="50%">
             <Text fontSize={16} textAlign="center" py="5">
               Order History
             </Text>
@@ -91,7 +181,7 @@ const Profile = () => {
                 mb="5"
               />
               <Text fontSize={18} fontWeight="bold">
-                Jonas El Rodriguez
+                {`${user?.firstName} ${user?.lastName}`}
               </Text>
               <Text>Moviegoers</Text>
             </Box>
@@ -100,7 +190,11 @@ const Profile = () => {
               alignItems="center"
               borderTopWidth={1}
               borderTopColor="#DEDEDE">
-              <Button width={160} borderRadius={16} bg="#00005C">
+              <Button
+                onPress={handleLogout}
+                width={160}
+                borderRadius={16}
+                bg="#00005C">
                 <Text color="white">Logout</Text>
               </Button>
             </Box>
@@ -114,11 +208,13 @@ const Profile = () => {
             <Text pb="5" borderBottomWidth={1} borderBottomColor="#DEDEDE">
               Details Information
             </Text>
-            <Stack space={5} bg="white" py="8" borderRadius={16}>
+            <Stack space={5} bg="white" pt="8" borderRadius={16}>
               <Box>
                 <Text mb="1">Full Name</Text>
                 <Input
-                  defaultValue="Jonas El Rodriguez"
+                  onFocus={() => setSuccessMessage('')}
+                  onChangeText={value => setFullName(value)}
+                  defaultValue={`${user?.firstName} ${user?.lastName}`}
                   fontSize={14}
                   borderRadius={12}
                   borderColor="#DEDEDE"
@@ -127,7 +223,9 @@ const Profile = () => {
               <Box>
                 <Text mb="1">Email</Text>
                 <Input
-                  defaultValue="jonasrodri123@gmail.com"
+                  onFocus={() => setSuccessMessage('')}
+                  onChangeText={value => setEmail(value)}
+                  defaultValue={user?.email}
                   fontSize={14}
                   borderRadius={12}
                   borderColor="#DEDEDE"
@@ -136,26 +234,34 @@ const Profile = () => {
               <Box>
                 <Text mb="1">Phone Number</Text>
                 <Input
-                  defaultValue="081445687121"
+                  onFocus={() => setSuccessMessage('')}
+                  onChangeText={value => setPhoneNumber(value)}
+                  defaultValue={user?.phoneNumber}
                   fontSize={14}
                   borderRadius={12}
                   borderColor="#DEDEDE"
                 />
               </Box>
+              {successMessage && (
+                <Text color="green.600" textAlign="center">
+                  {successMessage}
+                </Text>
+              )}
             </Stack>
           </Box>
-          <Box
-            py="8"
-            alignItems="center"
-            borderTopWidth={1}
-            borderTopColor="#DEDEDE">
-            <Button width="full" borderRadius={16} bg="#00005C">
+          <Box py="8" alignItems="center">
+            <Button
+              onPress={updateDataUser}
+              py="3"
+              width="full"
+              borderRadius={16}
+              bg="#00005C">
               <Text color="white">Update Changes</Text>
             </Button>
           </Box>
         </Stack>
         <Stack px="5" pb="8" pt="3" bg="#E5E5E5">
-          <Box bg="white" px="5" py="8" borderRadius={16}>
+          <Box bg="white" px="5" pt="8" borderRadius={16}>
             <Text pb="5" borderBottomWidth={1} borderBottomColor="#DEDEDE">
               Account and Privacy
             </Text>
@@ -167,7 +273,7 @@ const Profile = () => {
                 }}
                 validationSchema={ResetPasswordSchema}
                 onSubmit={values => {
-                  console.log(values);
+                  handleUpdatePassword(values);
                 }}>
                 {({
                   handleChange,
@@ -183,6 +289,7 @@ const Profile = () => {
                       <Input
                         name="password"
                         keyboardType="text"
+                        onFocus={() => removeMessage()}
                         onChangeText={handleChange('password')}
                         onBlur={handleBlur('password')}
                         value={values.password}
@@ -210,6 +317,7 @@ const Profile = () => {
                       <Input
                         name="confirmPassword"
                         keyboardType="text"
+                        onFocus={() => removeMessage()}
                         onChangeText={handleChange('confirmPassword')}
                         onBlur={handleBlur('confirmPassword')}
                         value={values.confirmPassword}
@@ -230,22 +338,28 @@ const Profile = () => {
                       </Box>
                     </Box>
                     {errors.confirmPassword && touched.confirmPassword ? (
-                      <Text>{errors.confirmPassword}</Text>
+                      <Text color="red.600">{errors.confirmPassword}</Text>
                     ) : null}
+                    {errorPassword && (
+                      <Text color="red.600">{errorPassword}</Text>
+                    )}
+                    {passwordSuccessMessage && (
+                      <Text color="green.600">{passwordSuccessMessage}</Text>
+                    )}
+                    <Box pt="8" pb="3" alignItems="center">
+                      <Button
+                        onPress={handleSubmit}
+                        py="3"
+                        width="full"
+                        borderRadius={16}
+                        bg="#00005C">
+                        <Text color="white">Update Changes</Text>
+                      </Button>
+                    </Box>
                   </>
                 )}
               </Formik>
             </Box>
-          </Box>
-          <Box
-            pt="8"
-            pb="3"
-            alignItems="center"
-            borderTopWidth={1}
-            borderTopColor="#DEDEDE">
-            <Button width="full" borderRadius={16} bg="#00005C">
-              <Text color="white">Update Changes</Text>
-            </Button>
           </Box>
         </Stack>
         <Footer />

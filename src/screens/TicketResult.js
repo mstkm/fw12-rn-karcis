@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Box,
   HStack,
@@ -10,8 +11,31 @@ import {
 import React from 'react';
 import Footer from '../components/Footer';
 import NavbarUser from '../components/NavbarUser';
+import http from '../helpers/http';
+import {useSelector} from 'react-redux';
+import moment from 'moment';
 
-const TicketResult = () => {
+const TicketResult = id => {
+  const token = useSelector(state => state?.auth?.token);
+  const transactionId = id.route.params;
+  // Get transactions by id
+  const [transaction, setTransaction] = React.useState({});
+  React.useEffect(() => {
+    getTransaction().then(response => {
+      setTransaction(response?.data?.results);
+    });
+  }, []);
+  const getTransaction = async () => {
+    try {
+      const response = await http(token).get(
+        `/profile/transaction/details/${transactionId}`,
+      );
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  console.log(transaction);
   return (
     <NativeBaseProvider>
       <ScrollView stickyHeaderIndices={[0]} stickyHeaderHiddenOnScroll={true}>
@@ -55,7 +79,7 @@ const TicketResult = () => {
                 <Box width="40%">
                   <Text>Movie</Text>
                   <Text numberOfLines={1} fontWeight="bold">
-                    Spider-Man: Homecoming
+                    {transaction?.movieTitle}
                   </Text>
                 </Box>
                 <Box ml="12">
@@ -67,24 +91,47 @@ const TicketResult = () => {
                 <Box width="40%">
                   <Text>Date</Text>
                   <Text numberOfLines={1} fontWeight="bold">
-                    07 Jul
+                    {
+                      String(
+                        moment(transaction?.bookingDate).format('ll'),
+                      ).split(',')[0]
+                    }
                   </Text>
                 </Box>
                 <Box ml="12">
                   <Text>Time</Text>
-                  <Text fontWeight="bold">2:00pm</Text>
+                  <Text fontWeight="bold">
+                    {String(transaction?.bookingTime).split(':')[0] +
+                      ':' +
+                      String(transaction?.bookingTime).split(':')[1] +
+                      (String(transaction?.bookingTime).split(':')[0] < 12
+                        ? 'am'
+                        : 'pm')}
+                  </Text>
                 </Box>
               </HStack>
               <HStack>
                 <Box width="40%">
                   <Text>Count</Text>
                   <Text numberOfLines={1} fontWeight="bold">
-                    3 pcs
+                    {
+                      String(transaction?.seatNum)
+                        .replace(/{/g, '')
+                        .replace(/}/g, '')
+                        .split(',').length
+                    }{' '}
+                    pcs
                   </Text>
                 </Box>
                 <Box ml="12">
                   <Text>Seats</Text>
-                  <Text fontWeight="bold">C4, C5, C6</Text>
+                  <Text width={100} numberOfLines={2} fontWeight="bold">
+                    {String(transaction?.seatNum)
+                      .replace(/{/g, '')
+                      .replace(/}/g, '')
+                      .replace(/"/g, '')
+                      .replace(/,/g, ', ')}
+                  </Text>
                 </Box>
               </HStack>
               <HStack
@@ -98,7 +145,10 @@ const TicketResult = () => {
                   Total
                 </Text>
                 <Text fontSize={16} fontWeight="bold">
-                  Rp150.000
+                  Rp
+                  {new Intl.NumberFormat('en-DE').format(
+                    transaction?.totalPrice,
+                  )}
                 </Text>
               </HStack>
             </Stack>

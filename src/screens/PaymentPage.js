@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Box,
   HStack,
@@ -14,8 +15,123 @@ import React from 'react';
 import Icon from 'react-native-vector-icons/Feather';
 import Footer from '../components/Footer';
 import NavbarUser from '../components/NavbarUser';
+import {useDispatch, useSelector} from 'react-redux';
+import {useNavigation} from '@react-navigation/native';
+import transaction, {
+  transaction as transactionAction,
+} from '../redux/reducers/transaction';
+import http from '../helpers/http';
+import jwt_decode from 'jwt-decode';
 
 const PaymentPage = () => {
+  const token = useSelector(state => state?.auth?.token);
+  const {id} = jwt_decode(token);
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const {
+    bookingDate,
+    bookingTime,
+    cinemaId,
+    cinemaName,
+    cinemaPicture,
+    movieId,
+    movieScheduleId,
+    movieTitle,
+    price,
+    seatNum,
+  } = useSelector(state => state?.transaction);
+
+  // Get payment methods
+  const [paymentMethods, setPaymentMethods] = React.useState([]);
+  React.useEffect(() => {
+    getPaymentMethods().then(response => {
+      setPaymentMethods(response?.data?.results);
+    });
+  }, []);
+  const getPaymentMethods = async () => {
+    try {
+      const response = await http().get('/paymentMethod?limit=10');
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Selected Payment Method
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    React.useState(null);
+
+  // Get user by id
+  const [user, setUser] = React.useState({});
+  React.useEffect(() => {
+    getUser().then(response => {
+      setUser(response?.data?.results);
+    });
+  }, []);
+  const getUser = async () => {
+    try {
+      const response = await http(token).get(`/users/${id}`);
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Handle Pay Order
+  const [fullName, setFullName] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [phoneNumber, setPhoneNumber] = React.useState('');
+  const handlePayOrder = async () => {
+    dispatch(
+      transactionAction({
+        bookingDate,
+        bookingTime,
+        cinemaId,
+        cinemaName,
+        cinemaPicture,
+        movieId,
+        movieScheduleId,
+        movieTitle,
+        price,
+        seatNum,
+        email: email ? email : user?.email,
+        fullName: fullName ? fullName : `${user?.firstName} ${user?.lastName}`,
+        phoneNumber: phoneNumber ? phoneNumber : user?.phoneNumber,
+        statusId: 1,
+        userId: id,
+        paymentMethodId: selectedPaymentMethod,
+      }),
+    );
+    createTransaction();
+  };
+
+  // Create Transaction
+  const createTransaction = async () => {
+    try {
+      const response = await http(token).post('/profile/transaction', {
+        bookingDate,
+        movieId,
+        userId: id,
+        cinemaName,
+        cinemaPicture,
+        cinemaId,
+        movieScheduleId,
+        movieTitle,
+        fullName: fullName ? fullName : `${user?.firstName} ${user?.lastName}`,
+        email: email ? email : user?.email,
+        phoneNumber: phoneNumber ? phoneNumber : user?.phoneNumber,
+        paymentMethodId: selectedPaymentMethod,
+        statusId: 1,
+        seatNum,
+        bookingTime,
+        totalPrice: seatNum.length * price,
+      });
+      navigation.navigate('OrderHistory');
+      return response;
+    } catch (error) {
+      console.log(error?.response);
+    }
+  };
   return (
     <NativeBaseProvider>
       <ScrollView stickyHeaderIndices={[0]} stickyHeaderHiddenOnScroll={true}>
@@ -25,7 +141,7 @@ const PaymentPage = () => {
             Total Payment
           </Text>
           <Text fontWeight="bold" fontSize={18}>
-            Rp150.000
+            Rp{new Intl.NumberFormat('en-DE').format(seatNum.length * price)}
           </Text>
         </HStack>
         <Stack px="5" pt="8" bg="#E5E5E5">
@@ -34,104 +150,35 @@ const PaymentPage = () => {
           </Text>
           <Box bg="white" px="3" py="5" borderRadius={16}>
             <Box space="10px" flexDirection="row" flexWrap="wrap">
-              <Pressable
-                borderWidth={1}
-                borderRadius={8}
-                borderColor="#DEDEDE"
-                width="100px"
-                justifyContent="center"
-                alignItems="center"
-                my="2">
-                <Image
-                  source={require('../images/google-pay.png')}
-                  alt="gopay"
-                  width="80px"
-                  height="50px"
-                  resizeMode="contain"
-                />
-              </Pressable>
-              <Pressable
-                borderWidth={1}
-                borderRadius={8}
-                borderColor="#DEDEDE"
-                width="100px"
-                justifyContent="center"
-                alignItems="center"
-                my="2"
-                mx="2">
-                <Image
-                  source={require('../images/visa.png')}
-                  alt="gopay"
-                  width="80px"
-                  height="50px"
-                  resizeMode="contain"
-                />
-              </Pressable>
-              <Pressable
-                borderWidth={1}
-                borderRadius={8}
-                borderColor="#DEDEDE"
-                width="100px"
-                justifyContent="center"
-                alignItems="center"
-                my="2">
-                <Image
-                  source={require('../images/gopay.png')}
-                  alt="gopay"
-                  width="80px"
-                  height="50px"
-                  resizeMode="contain"
-                />
-              </Pressable>
-              <Pressable
-                borderWidth={1}
-                borderRadius={8}
-                borderColor="#DEDEDE"
-                width="100px"
-                justifyContent="center"
-                alignItems="center"
-                my="2">
-                <Image
-                  source={require('../images/google-pay.png')}
-                  alt="gopay"
-                  width="80px"
-                  height="50px"
-                  resizeMode="contain"
-                />
-              </Pressable>
-              <Pressable
-                borderWidth={1}
-                borderRadius={8}
-                borderColor="#DEDEDE"
-                width="100px"
-                justifyContent="center"
-                alignItems="center"
-                my="2"
-                mx="2">
-                <Image
-                  source={require('../images/visa.png')}
-                  alt="gopay"
-                  width="80px"
-                  height="50px"
-                  resizeMode="contain"
-                />
-              </Pressable>
-              <Pressable
-                borderWidth={1}
-                borderRadius={8}
-                borderColor="#DEDEDE"
-                width="100px"
-                justifyContent="center"
-                alignItems="center"
-                my="2">
-                <Image
-                  source={require('../images/gopay.png')}
-                  alt="gopay"
-                  width="80px"
-                  height="50px"
-                  resizeMode="contain"
-                />
-              </Pressable>
+              {paymentMethods?.map(paymentMethod => {
+                return (
+                  <Pressable
+                    onPress={() => setSelectedPaymentMethod(paymentMethod?.id)}
+                    key={String(paymentMethod?.id)}
+                    borderWidth={1}
+                    borderRadius={8}
+                    borderColor="#DEDEDE"
+                    backgroundColor={
+                      selectedPaymentMethod === paymentMethod?.id
+                        ? '#00005C'
+                        : 'white'
+                    }
+                    width="100px"
+                    justifyContent="center"
+                    alignItems="center"
+                    padding="3px"
+                    my="3px"
+                    mx="3px">
+                    <Image
+                      source={{uri: paymentMethod?.picture}}
+                      alt={paymentMethod?.name}
+                      width="80px"
+                      height="50px"
+                      resizeMode="contain"
+                    />
+                  </Pressable>
+                );
+              })}
             </Box>
             <Box
               py="5"
@@ -158,7 +205,8 @@ const PaymentPage = () => {
             <Box>
               <Text mb="1">Full Name</Text>
               <Input
-                defaultValue="Jonas El Rodriguez"
+                onChangeText={value => setFullName(value)}
+                defaultValue={`${user?.firstName} ${user?.lastName}`}
                 fontSize={14}
                 borderRadius={12}
                 borderColor="#DEDEDE"
@@ -167,7 +215,8 @@ const PaymentPage = () => {
             <Box>
               <Text mb="1">Email</Text>
               <Input
-                defaultValue="jonasrodri123@gmail.com"
+                onChangeText={value => setEmail(value)}
+                defaultValue={user?.email}
                 fontSize={14}
                 borderRadius={12}
                 borderColor="#DEDEDE"
@@ -176,7 +225,8 @@ const PaymentPage = () => {
             <Box>
               <Text mb="1">Phone Number</Text>
               <Input
-                defaultValue="081445687121"
+                onChangeText={value => setPhoneNumber(value)}
+                defaultValue={user?.phoneNumber}
                 fontSize={14}
                 borderRadius={12}
                 borderColor="#DEDEDE"
@@ -198,8 +248,12 @@ const PaymentPage = () => {
             </Box>
           </Stack>
         </Stack>
+        <Box>
+          <Text />
+        </Box>
         <Box px="5" pb="8" bg="#E5E5E5">
           <Button
+            onPress={handlePayOrder}
             width="full"
             height={45}
             bg="#00005C"

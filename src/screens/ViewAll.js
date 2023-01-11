@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Box,
   NativeBaseProvider,
@@ -15,13 +16,19 @@ import NavbarUser from '../components/NavbarUser';
 import Month from '../components/Month';
 import Icon from 'react-native-vector-icons/Feather';
 import Footer from '../components/Footer';
+import http from '../helpers/http';
+import {useDispatch} from 'react-redux';
+import {useNavigation} from '@react-navigation/native';
+import {transaction as transactionAction} from '../redux/reducers/transaction';
 
 const ViewAll = () => {
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
   const [sort, setSort] = React.useState('');
-  const listMovie = [1, 2, 3, 4];
   const [page, setPage] = React.useState(1);
+  const [search, setSearch] = React.useState('');
   const increamentPage = () => {
-    if (page >= 1) {
+    if (page >= 1 && page < dataMovies?.pageInfo?.totalPage) {
       setPage(page + 1);
     } else {
       setPage(page);
@@ -33,6 +40,29 @@ const ViewAll = () => {
     } else {
       setPage(page);
     }
+  };
+  // Get movies
+  const [dataMovies, setDataMovies] = React.useState({});
+  React.useEffect(() => {
+    getMovies().then(response => {
+      setDataMovies(response?.data);
+    });
+  }, [page, sort, search]);
+  const getMovies = async () => {
+    try {
+      const response = await http().get(
+        `/movies/nowShowing?limit=4&page=${page}&search=${search}&sort=${sort}&sortBy=title`,
+      );
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Handle Details
+  const handleDetails = movieId => {
+    dispatch(transactionAction({movieId}));
+    navigation.navigate('MovieDetails');
   };
   return (
     <NativeBaseProvider>
@@ -62,6 +92,7 @@ const ViewAll = () => {
             </Box>
             <Box>
               <Input
+                onChangeText={value => setSearch(value)}
                 mx="3"
                 placeholder="Search Movie Name"
                 w="225"
@@ -78,15 +109,15 @@ const ViewAll = () => {
             flexDirection="row"
             flexWrap="wrap"
             justifyContent="center">
-            {listMovie.map((movie, index) => {
+            {dataMovies?.results?.map(movie => {
               return (
                 <Box
-                  key={String(index)}
+                  key={String(movie?.id)}
                   width="160"
                   borderWidth="1"
                   borderColor="#DEDEDE"
                   backgroundColor="white"
-                  px="2"
+                  p="3"
                   mx="1.5"
                   my="1.5"
                   display="flex"
@@ -94,21 +125,27 @@ const ViewAll = () => {
                   alignItems="center"
                   borderRadius="8">
                   <Image
-                    source={require('../images/spiderman.png')}
+                    source={{uri: movie?.picture}}
                     alt="spiderman"
-                    width="140"
+                    width="150"
+                    height="200"
+                    mb="3"
+                    borderRadius={8}
                     resizeMode="contain"
                   />
-                  <Box alignItems="center">
+                  <Box alignItems="center" height="120">
                     <Text
                       fontSize="16"
                       fontWeight="bold"
                       numberOfLines={1}
                       ellipsizeMode="tail">
-                      Spiderman: Homecoming
+                      {movie?.title}
                     </Text>
-                    <Text textAlign="center">Action, Adventure, Sci-Fi</Text>
+                    <Text flex={1} textAlign="center">
+                      {movie?.genre}
+                    </Text>
                     <Pressable
+                      onPress={() => handleDetails(movie?.id)}
                       borderWidth="1"
                       borderColor="#00005C"
                       borderRadius="4"
@@ -116,7 +153,7 @@ const ViewAll = () => {
                       alignItems="center"
                       width="125"
                       height="30px"
-                      mb="4">
+                      mb="1">
                       <Text color="#00005C">Details</Text>
                     </Pressable>
                   </Box>
