@@ -10,6 +10,7 @@ import {
   Stack,
   Image,
   Pressable,
+  Skeleton,
 } from 'native-base';
 import React from 'react';
 import NavbarUser from '../components/NavbarUser';
@@ -104,63 +105,77 @@ const ViewAll = () => {
           <Box>
             <Month />
           </Box>
-          <Box
-            display="flex"
-            flexDirection="row"
-            flexWrap="wrap"
-            justifyContent="center">
-            {dataMovies?.results?.map(movie => {
-              return (
-                <Box
-                  key={String(movie?.id)}
-                  width="160"
-                  borderWidth="1"
-                  borderColor="#DEDEDE"
-                  backgroundColor="white"
-                  p="3"
-                  mx="1.5"
-                  my="1.5"
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                  borderRadius="8">
-                  <Image
-                    source={{uri: movie?.picture}}
-                    alt="spiderman"
-                    width="150"
-                    height="200"
-                    mb="3"
-                    borderRadius={8}
-                    resizeMode="contain"
-                  />
-                  <Box alignItems="center" height="120">
-                    <Text
-                      fontSize="16"
-                      fontWeight="bold"
-                      numberOfLines={1}
-                      ellipsizeMode="tail">
-                      {movie?.title}
-                    </Text>
-                    <Text flex={1} textAlign="center">
-                      {movie?.genre}
-                    </Text>
-                    <Pressable
-                      onPress={() => handleDetails(movie?.id)}
-                      borderWidth="1"
-                      borderColor="#00005C"
-                      borderRadius="4"
-                      justifyContent="center"
-                      alignItems="center"
-                      width="125"
-                      height="30px"
-                      mb="1">
-                      <Text color="#00005C">Details</Text>
-                    </Pressable>
+          {dataMovies?.results ? (
+            <Box
+              display="flex"
+              flexDirection="row"
+              flexWrap="wrap"
+              justifyContent="center">
+              {dataMovies?.results?.map(movie => {
+                return (
+                  <Box
+                    key={String(movie?.id)}
+                    width="160"
+                    borderWidth="1"
+                    borderColor="#DEDEDE"
+                    backgroundColor="white"
+                    p="3"
+                    mx="1.5"
+                    my="1.5"
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    borderRadius="8">
+                    <Image
+                      source={{uri: movie?.picture}}
+                      alt="spiderman"
+                      width="150"
+                      height="200"
+                      mb="3"
+                      borderRadius={8}
+                      resizeMode="contain"
+                    />
+                    <Box alignItems="center" height="120">
+                      <Text
+                        fontSize="16"
+                        fontWeight="bold"
+                        numberOfLines={1}
+                        ellipsizeMode="tail">
+                        {movie?.title}
+                      </Text>
+                      <Text flex={1} textAlign="center">
+                        {movie?.genre}
+                      </Text>
+                      <Pressable
+                        onPress={() => handleDetails(movie?.id)}
+                        borderWidth="1"
+                        borderColor="#00005C"
+                        borderRadius="4"
+                        justifyContent="center"
+                        alignItems="center"
+                        width="125"
+                        height="30px"
+                        mb="1">
+                        <Text color="#00005C">Details</Text>
+                      </Pressable>
+                    </Box>
                   </Box>
-                </Box>
-              );
-            })}
-          </Box>
+                );
+              })}
+            </Box>
+          ) : (
+            <Box>
+              <Skeleton h="48" />
+              <Skeleton.Text py="4" />
+              <Skeleton
+                px="4"
+                my="4"
+                rounded="xl"
+                h="20"
+                startColor="gray.300"
+              />
+            </Box>
+          )}
           <HStack space={3} justifyContent="center">
             <Pressable
               onPress={decreamentPage}

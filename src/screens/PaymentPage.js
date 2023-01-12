@@ -10,6 +10,7 @@ import {
   Pressable,
   Input,
   Button,
+  Skeleton,
 } from 'native-base';
 import React from 'react';
 import Icon from 'react-native-vector-icons/Feather';
@@ -17,9 +18,7 @@ import Footer from '../components/Footer';
 import NavbarUser from '../components/NavbarUser';
 import {useDispatch, useSelector} from 'react-redux';
 import {useNavigation} from '@react-navigation/native';
-import transaction, {
-  transaction as transactionAction,
-} from '../redux/reducers/transaction';
+import {transaction as transactionAction} from '../redux/reducers/transaction';
 import http from '../helpers/http';
 import jwt_decode from 'jwt-decode';
 
@@ -136,67 +135,80 @@ const PaymentPage = () => {
     <NativeBaseProvider>
       <ScrollView stickyHeaderIndices={[0]} stickyHeaderHiddenOnScroll={true}>
         <NavbarUser />
-        <HStack px="5" py="5" bg="white" borderBottomRadius={16}>
-          <Text flex={1} fontSize={18}>
-            Total Payment
-          </Text>
-          <Text fontWeight="bold" fontSize={18}>
-            Rp{new Intl.NumberFormat('en-DE').format(seatNum.length * price)}
-          </Text>
-        </HStack>
-        <Stack px="5" pt="8" bg="#E5E5E5">
-          <Text fontSize={18} fontWeight="bold" mb="3">
-            Payment Method
-          </Text>
-          <Box bg="white" px="3" py="5" borderRadius={16}>
-            <Box space="10px" flexDirection="row" flexWrap="wrap">
-              {paymentMethods?.map(paymentMethod => {
-                return (
-                  <Pressable
-                    onPress={() => setSelectedPaymentMethod(paymentMethod?.id)}
-                    key={String(paymentMethod?.id)}
-                    borderWidth={1}
-                    borderRadius={8}
-                    borderColor="#DEDEDE"
-                    backgroundColor={
-                      selectedPaymentMethod === paymentMethod?.id
-                        ? '#00005C'
-                        : 'white'
-                    }
-                    width="100px"
-                    justifyContent="center"
-                    alignItems="center"
-                    padding="3px"
-                    my="3px"
-                    mx="3px">
-                    <Image
-                      source={{uri: paymentMethod?.picture}}
-                      alt={paymentMethod?.name}
-                      width="80px"
-                      height="50px"
-                      resizeMode="contain"
-                    />
-                  </Pressable>
-                );
-              })}
-            </Box>
-            <Box
-              py="5"
-              flexDirection="row"
-              alignItems="center"
-              justifyContent="center">
-              <Box width="120px" height="1px" bg="#DEDEDE" />
-              <Text flex={1} textAlign="center">
-                or
+        {paymentMethods[0]?.picture ? (
+          <>
+            <HStack px="5" py="5" bg="white" borderBottomRadius={16}>
+              <Text flex={1} fontSize={18}>
+                Total Payment
               </Text>
-              <Box width="120px" height="1px" bg="#DEDEDE" />
-            </Box>
-            <Box flexDirection="row" justifyContent="center" mb="3">
-              <Text>Pay via cash. </Text>
-              <Text color="#00005C">See how it work.</Text>
-            </Box>
+              <Text fontWeight="bold" fontSize={18}>
+                Rp
+                {new Intl.NumberFormat('en-DE').format(seatNum.length * price)}
+              </Text>
+            </HStack>
+            <Stack px="5" pt="8" bg="#E5E5E5">
+              <Text fontSize={18} fontWeight="bold" mb="3">
+                Payment Method
+              </Text>
+              <Box bg="white" px="3" py="5" borderRadius={16}>
+                <Box space="10px" flexDirection="row" flexWrap="wrap">
+                  {paymentMethods?.map(paymentMethod => {
+                    return (
+                      <Pressable
+                        onPress={() =>
+                          setSelectedPaymentMethod(paymentMethod?.id)
+                        }
+                        key={String(paymentMethod?.id)}
+                        borderWidth={1}
+                        borderRadius={8}
+                        borderColor="#DEDEDE"
+                        backgroundColor={
+                          selectedPaymentMethod === paymentMethod?.id
+                            ? '#00005C'
+                            : 'white'
+                        }
+                        width="100px"
+                        justifyContent="center"
+                        alignItems="center"
+                        padding="3px"
+                        my="3px"
+                        mx="3px">
+                        <Image
+                          source={{uri: paymentMethod?.picture}}
+                          alt={paymentMethod?.name}
+                          width="80px"
+                          height="50px"
+                          resizeMode="contain"
+                        />
+                      </Pressable>
+                    );
+                  })}
+                </Box>
+                <Box
+                  py="5"
+                  flexDirection="row"
+                  alignItems="center"
+                  justifyContent="center">
+                  <Box width="120px" height="1px" bg="#DEDEDE" />
+                  <Text flex={1} textAlign="center">
+                    or
+                  </Text>
+                  <Box width="120px" height="1px" bg="#DEDEDE" />
+                </Box>
+                <Box flexDirection="row" justifyContent="center" mb="3">
+                  <Text>Pay via cash.</Text>
+                  <Text color="#00005C">See how it work.</Text>
+                </Box>
+              </Box>
+            </Stack>
+          </>
+        ) : (
+          <Box px="5" py="10">
+            <Skeleton h="500px" />
+            <Skeleton.Text py="4" />
+            <Skeleton px="4" my="4" rounded="xl" h="20" startColor="gray.300" />
           </Box>
-        </Stack>
+        )}
         <Stack px="5" py="8" bg="#E5E5E5">
           <Text fontSize={18} fontWeight="bold" mb="3">
             Personal Info

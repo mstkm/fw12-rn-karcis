@@ -9,6 +9,7 @@ import {
   Image,
   Stack,
   Button,
+  Skeleton,
 } from 'native-base';
 import React from 'react';
 import NavbarUser from '../components/NavbarUser';
@@ -65,52 +66,60 @@ const OrderHistory = () => {
             </Text>
           </Pressable>
         </HStack>
-        <Stack space={5} py="10" bg="#E5E5E5">
-          {transactions?.map(transaction => {
-            return (
-              <Box key={String(transaction?.id)} px="5">
-                <Box bg="white" py="5" borderRadius={16}>
-                  <Box pb="8" px="5">
-                    <Image
-                      source={{uri: transaction?.cinemaPicture}}
-                      alt="cineone21"
-                      width={120}
-                      height={50}
-                      resizeMode="contain"
-                      mb="3"
-                    />
-                    <Text>
-                      {moment(transaction?.bookingDate).format('ll')}
-                      {'   -   '}
-                      {transaction?.bookingTime.split(':')[0] +
-                        ':' +
-                        transaction?.bookingTime.split(':')[1] +
-                        (transaction?.bookingTime.split(':')[0] < 12
-                          ? 'am'
-                          : 'pm')}
-                    </Text>
-                    <Text fontWeight="bold" fontSize={18}>
-                      {transaction?.movieTitle}
-                    </Text>
-                  </Box>
-                  <Box
-                    pt="8"
-                    pb="3"
-                    px="5"
-                    borderTopWidth={1}
-                    borderTopColor="#DEDEDE">
-                    <Button
-                      onPress={() => handleShowTicket(transaction?.id)}
-                      borderRadius={8}
-                      bg="#00BA88">
-                      <Text color="#FFFFFF">Ticket in active</Text>
-                    </Button>
+        {transactions[0]?.cinemaPicture ? (
+          <Stack space={5} py="10" bg="#E5E5E5">
+            {transactions?.map(transaction => {
+              return (
+                <Box key={String(transaction?.id)} px="5">
+                  <Box bg="white" py="5" borderRadius={16}>
+                    <Box pb="8" px="5">
+                      <Image
+                        source={{uri: transaction?.cinemaPicture}}
+                        alt="cineone21"
+                        width={120}
+                        height={50}
+                        resizeMode="contain"
+                        mb="3"
+                      />
+                      <Text>
+                        {moment(transaction?.bookingDate).format('ll')}
+                        {'   -   '}
+                        {transaction?.bookingTime.split(':')[0] +
+                          ':' +
+                          transaction?.bookingTime.split(':')[1] +
+                          (transaction?.bookingTime.split(':')[0] < 12
+                            ? 'am'
+                            : 'pm')}
+                      </Text>
+                      <Text fontWeight="bold" fontSize={18}>
+                        {transaction?.movieTitle}
+                      </Text>
+                    </Box>
+                    <Box
+                      pt="8"
+                      pb="3"
+                      px="5"
+                      borderTopWidth={1}
+                      borderTopColor="#DEDEDE">
+                      <Button
+                        onPress={() => handleShowTicket(transaction?.id)}
+                        borderRadius={8}
+                        bg="#00BA88">
+                        <Text color="#FFFFFF">Ticket in active</Text>
+                      </Button>
+                    </Box>
                   </Box>
                 </Box>
-              </Box>
-            );
-          })}
-        </Stack>
+              );
+            })}
+          </Stack>
+        ) : (
+          <Box px="5" py="10">
+            <Skeleton h="400px" />
+            <Skeleton.Text py="4" />
+            <Skeleton px="4" my="4" rounded="xl" h="20" startColor="gray.300" />
+          </Box>
+        )}
         <Footer />
       </ScrollView>
     </NativeBaseProvider>

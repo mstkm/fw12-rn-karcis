@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   },
   dropDownMenuWrapper: {
     position: 'absolute',
-    top: 60,
+    top: 55,
     left: 0,
     width: '100%',
     backgroundColor: 'white',

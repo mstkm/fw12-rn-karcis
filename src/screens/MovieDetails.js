@@ -13,6 +13,7 @@ import {
   useDisclose,
   Actionsheet,
   Button,
+  Skeleton,
 } from 'native-base';
 import NavbarUser from '../components/NavbarUser';
 import Icon from 'react-native-vector-icons/Feather';
@@ -36,7 +37,6 @@ const MovieDetails = () => {
 
   const [selectedCity, setSelectedCity] = React.useState('');
 
-  const times = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'];
   const [selectedTime, setSelectedTime] = React.useState(null);
   const [selectedCinema, setSelectedCinema] = React.useState(null);
   const handleSelectTime = (time, cinemaId) => {
@@ -45,14 +45,14 @@ const MovieDetails = () => {
   };
 
   // Get Movie By Id
+  const movieId = useSelector(state => state?.transaction?.movieId);
+  const [movie, setMovie] = React.useState({});
+  const movieTitle = movie?.title;
   React.useEffect(() => {
     getMovie().then(response => {
       setMovie(response?.data?.results);
     });
   }, []);
-  const movieId = useSelector(state => state?.transaction?.movieId);
-  const [movie, setMovie] = React.useState({});
-  const movieTitle = movie?.title;
   const getMovie = async () => {
     try {
       const response = await http().get(`/movies/${movieId}`);
@@ -107,62 +107,70 @@ const MovieDetails = () => {
     <NativeBaseProvider>
       <ScrollView stickyHeaderIndices={[0]} stickyHeaderHiddenOnScroll={true}>
         <NavbarUser />
-        <Stack space={6} px="5" py={8} bg="white">
-          <Box alignItems="center">
-            <Box
-              borderWidth={1}
-              width="200"
-              p="5"
-              borderRadius="8"
-              borderColor="#DEDEDE">
-              <Image
-                source={{uri: movie?.picture}}
-                alt="spiderman"
-                width="160"
-                height="240"
-                borderRadius={8}
-                resizeMode="contain"
-              />
+        {movie?.picture ? (
+          <Stack space={6} px="5" py={8} bg="white">
+            <Box alignItems="center">
+              <Box
+                borderWidth={1}
+                width="200"
+                p="5"
+                borderRadius="8"
+                borderColor="#DEDEDE">
+                <Image
+                  source={{uri: movie?.picture}}
+                  alt="spiderman"
+                  width="160"
+                  height="240"
+                  borderRadius={8}
+                  resizeMode="contain"
+                />
+              </Box>
             </Box>
+            <Stack space={1}>
+              <Text textAlign="center" fontSize="16" fontWeight="bold">
+                {movie?.title}
+              </Text>
+              <Text textAlign="center">{movie?.genre}</Text>
+            </Stack>
+            <Stack space={3}>
+              <HStack space={20}>
+                <Box width={100}>
+                  <Text>Release date</Text>
+                  <Text fontWeight="bold">
+                    {moment(movie?.releaseDate).format('ll')}
+                  </Text>
+                </Box>
+                <Box width={160}>
+                  <Text>Directed by</Text>
+                  <Text fontWeight="bold">{movie?.director}</Text>
+                </Box>
+              </HStack>
+              <HStack space={20}>
+                <Box width={100}>
+                  <Text>Duration</Text>
+                  <Text fontWeight="bold">
+                    {Number(String(movie?.duration).split(':')[0])} hrs{' '}
+                    {Number(String(movie?.duration).split(':')[1])} min
+                  </Text>
+                </Box>
+                <Box width={160}>
+                  <Text>Casts</Text>
+                  <Text fontWeight="bold">{movie?.casts}</Text>
+                </Box>
+              </HStack>
+            </Stack>
+            <Stack space={3} borderTopWidth="0.5" borderColor="#D6D8E7" pt={8}>
+              <Text fontWeight="bold">Synopsis</Text>
+              <Text>{movie?.synopsis}</Text>
+            </Stack>
+          </Stack>
+        ) : (
+          <Box px="5" py="10">
+            <Skeleton h="500px" />
+            <Skeleton.Text py="4" />
+            <Skeleton px="4" my="4" rounded="xl" h="20" startColor="gray.300" />
           </Box>
-          <Stack space={1}>
-            <Text textAlign="center" fontSize="16" fontWeight="bold">
-              {movie?.title}
-            </Text>
-            <Text textAlign="center">{movie?.genre}</Text>
-          </Stack>
-          <Stack space={3}>
-            <HStack space={20}>
-              <Box width={100}>
-                <Text>Release date</Text>
-                <Text fontWeight="bold">
-                  {moment(movie?.releaseDate).format('ll')}
-                </Text>
-              </Box>
-              <Box width={160}>
-                <Text>Directed by</Text>
-                <Text fontWeight="bold">{movie?.director}</Text>
-              </Box>
-            </HStack>
-            <HStack space={20}>
-              <Box width={100}>
-                <Text>Duration</Text>
-                <Text fontWeight="bold">
-                  {Number(String(movie?.duration).split(':')[0])} hrs{' '}
-                  {Number(String(movie?.duration).split(':')[1])} min
-                </Text>
-              </Box>
-              <Box width={160}>
-                <Text>Casts</Text>
-                <Text fontWeight="bold">{movie?.casts}</Text>
-              </Box>
-            </HStack>
-          </Stack>
-          <Stack space={3} borderTopWidth="0.5" borderColor="#D6D8E7" pt={8}>
-            <Text fontWeight="bold">Synopsis</Text>
-            <Text>{movie?.synopsis}</Text>
-          </Stack>
-        </Stack>
+        )}
         <Stack px="5" bg="#F5F6F8" py="10">
           <Box mb="5">
             <Text textAlign="center" fontSize={16} fontWeight="bold">

@@ -10,6 +10,9 @@ import {
   Button,
   Stack,
   Input,
+  Skeleton,
+  VStack,
+  Center,
 } from 'native-base';
 import React from 'react';
 import NavbarUser from '../components/NavbarUser';
@@ -37,7 +40,7 @@ const Profile = () => {
     getUser().then(response => {
       setUser(response?.data?.results);
     });
-  }, []);
+  }, [user]);
   const getUser = async () => {
     try {
       const response = await http(token).get(`/users/${id}`);
@@ -101,7 +104,7 @@ const Profile = () => {
   const [successMessage, setSuccessMessage] = React.useState('');
   const updateDataUser = async () => {
     try {
-      const form = new FormData();
+      // const form = new FormData();
       // form.append('picture', picture)
       // form.append('firstName', firstName);
       // form.append('lastName', lastName);
@@ -168,200 +171,243 @@ const Profile = () => {
             </Text>
           </Pressable>
         </HStack>
-        <Stack px="5" pt="8" bg="#E5E5E5">
-          <Box py="8" bg="white" borderRadius={16}>
-            <Text px="5">INFO</Text>
-            <Box py="8" alignItems="center">
-              <Image
-                source={{uri: 'https://picsum.photos/200/300'}}
-                width={120}
-                height={120}
-                alt="profile"
-                borderRadius="full"
-                mb="5"
-              />
-              <Text fontSize={18} fontWeight="bold">
-                {`${user?.firstName} ${user?.lastName}`}
-              </Text>
-              <Text>Moviegoers</Text>
-            </Box>
-            <Box
-              pt="8"
-              alignItems="center"
-              borderTopWidth={1}
-              borderTopColor="#DEDEDE">
-              <Button
-                onPress={handleLogout}
-                width={160}
-                borderRadius={16}
-                bg="#00005C">
-                <Text color="white">Logout</Text>
-              </Button>
-            </Box>
-          </Box>
-        </Stack>
-        <Stack px="5" pt="8" bg="#E5E5E5">
-          <Text fontSize={16} fontWeight="bold" mb="3">
-            Account Settings
-          </Text>
-          <Box bg="white" px="5" py="8" borderRadius={16}>
-            <Text pb="5" borderBottomWidth={1} borderBottomColor="#DEDEDE">
-              Details Information
-            </Text>
-            <Stack space={5} bg="white" pt="8" borderRadius={16}>
-              <Box>
-                <Text mb="1">Full Name</Text>
-                <Input
-                  onFocus={() => setSuccessMessage('')}
-                  onChangeText={value => setFullName(value)}
-                  defaultValue={`${user?.firstName} ${user?.lastName}`}
-                  fontSize={14}
-                  borderRadius={12}
-                  borderColor="#DEDEDE"
-                />
+        {user?.firstName ? (
+          <>
+            <Stack px="5" pt="8" bg="#E5E5E5">
+              <Box py="8" bg="white" borderRadius={16}>
+                <Text px="5">INFO</Text>
+                <Box py="8" alignItems="center">
+                  <Image
+                    source={{uri: 'https://picsum.photos/200/300'}}
+                    width={120}
+                    height={120}
+                    alt="profile"
+                    borderRadius="full"
+                    mb="5"
+                  />
+                  <Text fontSize={18} fontWeight="bold">
+                    {`${user?.firstName} ${user?.lastName}`}
+                  </Text>
+                  <Text>Moviegoers</Text>
+                </Box>
+                <Box
+                  pt="8"
+                  alignItems="center"
+                  borderTopWidth={1}
+                  borderTopColor="#DEDEDE">
+                  <Button
+                    onPress={handleLogout}
+                    width={160}
+                    borderRadius={16}
+                    bg="#00005C">
+                    <Text color="white">Logout</Text>
+                  </Button>
+                </Box>
               </Box>
-              <Box>
-                <Text mb="1">Email</Text>
-                <Input
-                  onFocus={() => setSuccessMessage('')}
-                  onChangeText={value => setEmail(value)}
-                  defaultValue={user?.email}
-                  fontSize={14}
-                  borderRadius={12}
-                  borderColor="#DEDEDE"
-                />
-              </Box>
-              <Box>
-                <Text mb="1">Phone Number</Text>
-                <Input
-                  onFocus={() => setSuccessMessage('')}
-                  onChangeText={value => setPhoneNumber(value)}
-                  defaultValue={user?.phoneNumber}
-                  fontSize={14}
-                  borderRadius={12}
-                  borderColor="#DEDEDE"
-                />
-              </Box>
-              {successMessage && (
-                <Text color="green.600" textAlign="center">
-                  {successMessage}
-                </Text>
-              )}
             </Stack>
-          </Box>
-          <Box py="8" alignItems="center">
-            <Button
-              onPress={updateDataUser}
-              py="3"
-              width="full"
-              borderRadius={16}
-              bg="#00005C">
-              <Text color="white">Update Changes</Text>
-            </Button>
-          </Box>
-        </Stack>
-        <Stack px="5" pb="8" pt="3" bg="#E5E5E5">
-          <Box bg="white" px="5" pt="8" borderRadius={16}>
-            <Text pb="5" borderBottomWidth={1} borderBottomColor="#DEDEDE">
-              Account and Privacy
-            </Text>
-            <Box py="5">
-              <Formik
-                initialValues={{
-                  password: '',
-                  confirmPassword: '',
-                }}
-                validationSchema={ResetPasswordSchema}
-                onSubmit={values => {
-                  handleUpdatePassword(values);
-                }}>
-                {({
-                  handleChange,
-                  handleBlur,
-                  handleSubmit,
-                  values,
-                  errors,
-                  touched,
-                }) => (
-                  <>
-                    <Box position="relative">
-                      <Text mb="1">Password</Text>
-                      <Input
-                        name="password"
-                        keyboardType="text"
-                        onFocus={() => removeMessage()}
-                        onChangeText={handleChange('password')}
-                        onBlur={handleBlur('password')}
-                        value={values.password}
-                        secureTextEntry={isPasswordSecure ? true : false}
-                        autoCapitalize="none"
-                        defaultValue="Jonas El Rodriguez"
-                        fontSize={14}
-                        borderRadius={12}
-                        borderColor="#DEDEDE"
-                        placeholder="Write your password"
-                      />
-                      <Box position="absolute" right={3} bottom={3}>
-                        <Icon
-                          onPress={showPassword}
-                          name={iconEye ? 'eye' : 'eye-off'}
-                          size={20}
-                        />
-                      </Box>
-                    </Box>
-                    {errors.password && touched.password ? (
-                      <Text color="red.600">{errors.password}</Text>
-                    ) : null}
-                    <Box position="relative" mt="5">
-                      <Text mb="1">Confirm Password</Text>
-                      <Input
-                        name="confirmPassword"
-                        keyboardType="text"
-                        onFocus={() => removeMessage()}
-                        onChangeText={handleChange('confirmPassword')}
-                        onBlur={handleBlur('confirmPassword')}
-                        value={values.confirmPassword}
-                        secureTextEntry={isConfirmPasswordSecure ? true : false}
-                        autoCapitalize="none"
-                        defaultValue="Jonas El Rodriguez"
-                        fontSize={14}
-                        borderRadius={12}
-                        borderColor="#DEDEDE"
-                        placeholder="Write your confirm password"
-                      />
-                      <Box position="absolute" right={3} bottom={3}>
-                        <Icon
-                          onPress={showConfirmPassword}
-                          name={iconEyeConfirm ? 'eye' : 'eye-off'}
-                          size={20}
-                        />
-                      </Box>
-                    </Box>
-                    {errors.confirmPassword && touched.confirmPassword ? (
-                      <Text color="red.600">{errors.confirmPassword}</Text>
-                    ) : null}
-                    {errorPassword && (
-                      <Text color="red.600">{errorPassword}</Text>
+            <Stack px="5" pt="8" bg="#E5E5E5">
+              <Text fontSize={16} fontWeight="bold" mb="3">
+                Account Settings
+              </Text>
+              <Box bg="white" px="5" py="8" borderRadius={16}>
+                <Text pb="5" borderBottomWidth={1} borderBottomColor="#DEDEDE">
+                  Details Information
+                </Text>
+                <Stack space={5} bg="white" pt="8" borderRadius={16}>
+                  <Box>
+                    <Text mb="1">Full Name</Text>
+                    <Input
+                      onFocus={() => setSuccessMessage('')}
+                      onChangeText={value => setFullName(value)}
+                      defaultValue={`${user?.firstName} ${user?.lastName}`}
+                      fontSize={14}
+                      borderRadius={12}
+                      borderColor="#DEDEDE"
+                    />
+                  </Box>
+                  <Box>
+                    <Text mb="1">Email</Text>
+                    <Input
+                      onFocus={() => setSuccessMessage('')}
+                      onChangeText={value => setEmail(value)}
+                      defaultValue={user?.email}
+                      fontSize={14}
+                      borderRadius={12}
+                      borderColor="#DEDEDE"
+                    />
+                  </Box>
+                  <Box>
+                    <Text mb="1">Phone Number</Text>
+                    <Input
+                      onFocus={() => setSuccessMessage('')}
+                      onChangeText={value => setPhoneNumber(value)}
+                      defaultValue={user?.phoneNumber}
+                      fontSize={14}
+                      borderRadius={12}
+                      borderColor="#DEDEDE"
+                    />
+                  </Box>
+                  {successMessage && (
+                    <Text color="green.600" textAlign="center">
+                      {successMessage}
+                    </Text>
+                  )}
+                </Stack>
+              </Box>
+              <Box py="8" alignItems="center">
+                <Button
+                  onPress={updateDataUser}
+                  py="3"
+                  width="full"
+                  borderRadius={16}
+                  bg="#00005C">
+                  <Text color="white">Update Changes</Text>
+                </Button>
+              </Box>
+            </Stack>
+            <Stack px="5" pb="8" pt="3" bg="#E5E5E5">
+              <Box bg="white" px="5" pt="8" borderRadius={16}>
+                <Text pb="5" borderBottomWidth={1} borderBottomColor="#DEDEDE">
+                  Account and Privacy
+                </Text>
+                <Box py="5">
+                  <Formik
+                    initialValues={{
+                      password: '',
+                      confirmPassword: '',
+                    }}
+                    validationSchema={ResetPasswordSchema}
+                    onSubmit={values => {
+                      handleUpdatePassword(values);
+                    }}>
+                    {({
+                      handleChange,
+                      handleBlur,
+                      handleSubmit,
+                      values,
+                      errors,
+                      touched,
+                    }) => (
+                      <>
+                        <Box position="relative">
+                          <Text mb="1">Password</Text>
+                          <Input
+                            name="password"
+                            keyboardType="text"
+                            onFocus={() => removeMessage()}
+                            onChangeText={handleChange('password')}
+                            onBlur={handleBlur('password')}
+                            value={values.password}
+                            secureTextEntry={isPasswordSecure ? true : false}
+                            autoCapitalize="none"
+                            defaultValue="Jonas El Rodriguez"
+                            fontSize={14}
+                            borderRadius={12}
+                            borderColor="#DEDEDE"
+                            placeholder="Write your password"
+                          />
+                          <Box position="absolute" right={3} bottom={3}>
+                            <Icon
+                              onPress={showPassword}
+                              name={iconEye ? 'eye' : 'eye-off'}
+                              size={20}
+                            />
+                          </Box>
+                        </Box>
+                        {errors.password && touched.password ? (
+                          <Text color="red.600">{errors.password}</Text>
+                        ) : null}
+                        <Box position="relative" mt="5">
+                          <Text mb="1">Confirm Password</Text>
+                          <Input
+                            name="confirmPassword"
+                            keyboardType="text"
+                            onFocus={() => removeMessage()}
+                            onChangeText={handleChange('confirmPassword')}
+                            onBlur={handleBlur('confirmPassword')}
+                            value={values.confirmPassword}
+                            secureTextEntry={
+                              isConfirmPasswordSecure ? true : false
+                            }
+                            autoCapitalize="none"
+                            defaultValue="Jonas El Rodriguez"
+                            fontSize={14}
+                            borderRadius={12}
+                            borderColor="#DEDEDE"
+                            placeholder="Write your confirm password"
+                          />
+                          <Box position="absolute" right={3} bottom={3}>
+                            <Icon
+                              onPress={showConfirmPassword}
+                              name={iconEyeConfirm ? 'eye' : 'eye-off'}
+                              size={20}
+                            />
+                          </Box>
+                        </Box>
+                        {errors.confirmPassword && touched.confirmPassword ? (
+                          <Text color="red.600">{errors.confirmPassword}</Text>
+                        ) : null}
+                        {errorPassword && (
+                          <Text color="red.600">{errorPassword}</Text>
+                        )}
+                        {passwordSuccessMessage && (
+                          <Text color="green.600">
+                            {passwordSuccessMessage}
+                          </Text>
+                        )}
+                        <Box pt="8" pb="3" alignItems="center">
+                          <Button
+                            onPress={handleSubmit}
+                            py="3"
+                            width="full"
+                            borderRadius={16}
+                            bg="#00005C">
+                            <Text color="white">Update Changes</Text>
+                          </Button>
+                        </Box>
+                      </>
                     )}
-                    {passwordSuccessMessage && (
-                      <Text color="green.600">{passwordSuccessMessage}</Text>
-                    )}
-                    <Box pt="8" pb="3" alignItems="center">
-                      <Button
-                        onPress={handleSubmit}
-                        py="3"
-                        width="full"
-                        borderRadius={16}
-                        bg="#00005C">
-                        <Text color="white">Update Changes</Text>
-                      </Button>
-                    </Box>
-                  </>
-                )}
-              </Formik>
-            </Box>
-          </Box>
-        </Stack>
+                  </Formik>
+                </Box>
+              </Box>
+            </Stack>
+          </>
+        ) : (
+          <Center w="100%" py="10">
+            <VStack
+              w="90%"
+              maxW="400"
+              borderWidth="1"
+              space={6}
+              rounded="md"
+              alignItems="center"
+              _dark={{
+                borderColor: 'coolGray.500',
+              }}
+              _light={{
+                borderColor: 'coolGray.200',
+              }}>
+              <Skeleton h="150" />
+              <Skeleton
+                borderWidth={1}
+                borderColor="coolGray.200"
+                endColor="warmGray.50"
+                size="40"
+                rounded="full"
+                mt="-70"
+              />
+              <HStack space="2">
+                <Skeleton size="5" rounded="full" />
+                <Skeleton size="5" rounded="full" />
+                <Skeleton size="5" rounded="full" />
+                <Skeleton size="5" rounded="full" />
+                <Skeleton size="5" rounded="full" />
+              </HStack>
+              <Skeleton.Text lines={3} h="100" alignItems="center" px="12" />
+              <Skeleton mb="3" w="40" h="150" py="10" rounded="20" />
+            </VStack>
+          </Center>
+        )}
         <Footer />
       </ScrollView>
     </NativeBaseProvider>
