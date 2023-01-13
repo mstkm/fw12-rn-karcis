@@ -13,6 +13,7 @@ import {
   Skeleton,
   VStack,
   Center,
+  Modal,
 } from 'native-base';
 import React from 'react';
 import NavbarUser from '../components/NavbarUser';
@@ -28,6 +29,7 @@ import jwt_decode from 'jwt-decode';
 import http from '../helpers/http';
 import {logout as logoutAction} from '../redux/reducers/auth';
 import {transactionLogout as transactionLogoutAction} from '../redux/reducers/transaction';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
 const Profile = () => {
   const token = useSelector(state => state?.auth?.token);
@@ -93,6 +95,74 @@ const Profile = () => {
     dispatch(transactionLogoutAction());
   };
 
+  // Image Picker
+  const [showModal, setShowModal] = React.useState(false);
+  const [image, setImage] = React.useState(null);
+  const fileName = image?.assets && image.assets[0].fileName;
+  const type = image?.assets && image.assets[0].type;
+  const uri = image?.assets && image.assets[0].uri;
+  const fileSize = image?.assets && image.assets[0].fileSize;
+
+  const onImageLibraryPress = React.useCallback(() => {
+    const options = {
+      selectionLimit: 1,
+      mediaType: 'photo',
+      includeBase64: false,
+    };
+    launchImageLibrary(options, setImage);
+    setImage(null);
+    setErrorPicture(null);
+    setSuccessPicture(null);
+  }, []);
+
+  const onCameraPress = async () => {
+    const results = await launchCamera();
+    setImage(results);
+  };
+
+  // Open modal
+  const openModal = () => {
+    setShowModal(true);
+    setErrorPicture(null);
+    setSuccessPicture(null);
+    setImage(null);
+  };
+
+  // Update Picture
+  const [successPicture, setSuccessPicture] = React.useState(null);
+  const [errorPicture, setErrorPicture] = React.useState(null);
+  const updatePicture = async () => {
+    if (image && fileSize <= 5024 * 5024) {
+      try {
+        const form = new FormData();
+        form.append('picture', {
+          name: fileName,
+          type: type,
+          uri: uri,
+        });
+        const response = await http(token).patch('/profile/update', form, {
+          headers: {
+            'Content-type': 'multipart/form-data',
+          },
+        });
+        setErrorPicture();
+        setSuccessPicture('Successfully updated');
+        setTimeout(() => {
+          setShowModal(false);
+        }, 3000);
+        return response;
+      } catch (error) {
+        console.log(error);
+      }
+    } else if (!image) {
+      setSuccessPicture();
+      setErrorPicture('Image not found');
+    } else {
+      setSuccessPicture();
+      setErrorPicture('File to large');
+    }
+  };
+
   // Get data for update
   const [fullName, setFullName] = React.useState('');
   const firstName = String(fullName).split(' ')[0];
@@ -101,15 +171,9 @@ const Profile = () => {
   const [phoneNumber, setPhoneNumber] = React.useState('');
 
   // Update Data User
-  const [successMessage, setSuccessMessage] = React.useState('');
+  const [successMessage, setSuccessMessage] = React.useState(null);
   const updateDataUser = async () => {
     try {
-      // const form = new FormData();
-      // form.append('picture', picture)
-      // form.append('firstName', firstName);
-      // form.append('lastName', lastName);
-      // form.append('email', email);
-      // form.append('phoneNumber', phoneNumber);
       const response = await http(token).patch('/profile/update', {
         firstName,
         lastName,
@@ -124,7 +188,7 @@ const Profile = () => {
   };
 
   // Update Password User
-  const [errorPassword, setErrorPassword] = React.useState('');
+  const [errorPassword, setErrorPassword] = React.useState(null);
   const [passwordSuccessMessage, setPasswordSuccessMessage] =
     React.useState('');
   const handleUpdatePassword = async values => {
@@ -144,8 +208,8 @@ const Profile = () => {
     }
   };
   const removeMessage = () => {
-    setErrorPassword('');
-    setPasswordSuccessMessage('');
+    setErrorPassword(null);
+    setPasswordSuccessMessage(null);
   };
   return (
     <NativeBaseProvider>
@@ -173,19 +237,76 @@ const Profile = () => {
         </HStack>
         {user?.firstName ? (
           <>
+            <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
+              <Modal.Content maxWidth="400px">
+                <Modal.CloseButton />
+                <Modal.Header>Upload Picture</Modal.Header>
+                <Modal.Body>
+                  <Button
+                    onPress={onImageLibraryPress}
+                    bg="#00005C"
+                    borderRadius={16}>
+                    <Text color="white">Browse a picture</Text>
+                  </Button>
+                  <Button
+                    onPress={onCameraPress}
+                    mt="3"
+                    bg="#00005C"
+                    borderRadius={16}>
+                    <Text color="white">Take a picture</Text>
+                  </Button>
+                  <Text py="3" textAlign="center">
+                    {fileName}
+                  </Text>
+                  {successPicture && (
+                    <Text pb="3" color="green.600" textAlign="center">
+                      {successPicture}
+                    </Text>
+                  )}
+                  {errorPicture && (
+                    <Text pb="3" color="red.600" textAlign="center">
+                      {errorPicture}
+                    </Text>
+                  )}
+                  <Box alignItems="center">
+                    <Button
+                      onPress={updatePicture}
+                      bg="#00005C"
+                      width="150"
+                      borderRadius={16}>
+                      <Text color="white">Update Changes</Text>
+                    </Button>
+                  </Box>
+                </Modal.Body>
+              </Modal.Content>
+            </Modal>
             <Stack px="5" pt="8" bg="#E5E5E5">
               <Box py="8" bg="white" borderRadius={16}>
                 <Text px="5">INFO</Text>
-                <Box py="8" alignItems="center">
+                <Box py="8" alignItems="center" position="relative">
                   <Image
                     source={{uri: 'https://picsum.photos/200/300'}}
-                    width={120}
-                    height={120}
+                    width={150}
+                    height={150}
                     alt="profile"
                     borderRadius="full"
                     mb="5"
                   />
-                  <Text fontSize={18} fontWeight="bold">
+                  <Pressable
+                    onPress={openModal}
+                    w="8"
+                    h="8"
+                    borderWidth={1}
+                    borderRadius="full"
+                    justifyContent="center"
+                    alignItems="center"
+                    backgroundColor="#00005C"
+                    position="absolute"
+                    top="145px"
+                    right="100px">
+                    <Icon name="edit-2" size={18} color="white" />
+                  </Pressable>
+                  <Text fontSize={20} fontWeight="bold">
                     {`${user?.firstName} ${user?.lastName}`}
                   </Text>
                   <Text>Moviegoers</Text>
@@ -197,7 +318,7 @@ const Profile = () => {
                   borderTopColor="#DEDEDE">
                   <Button
                     onPress={handleLogout}
-                    width={160}
+                    width={180}
                     borderRadius={16}
                     bg="#00005C">
                     <Text color="white">Logout</Text>
