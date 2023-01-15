@@ -30,10 +30,12 @@ import http from '../helpers/http';
 import {logout as logoutAction} from '../redux/reducers/auth';
 import {transactionLogout as transactionLogoutAction} from '../redux/reducers/transaction';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import NavbarAdmin from '../components/NavbarAdmin';
 
 const Profile = () => {
   const token = useSelector(state => state?.auth?.token);
   const {id} = jwt_decode(token);
+  const {role} = jwt_decode(token);
   const navigation = useNavigation();
   const dispatch = useDispatch();
   // Get user by id
@@ -214,27 +216,29 @@ const Profile = () => {
   return (
     <NativeBaseProvider>
       <ScrollView stickyHeaderIndices={[0]} stickyHeaderHiddenOnScroll={true}>
-        <NavbarUser />
-        <HStack px="5" bg="white">
-          <Pressable width="50%">
-            <Text
-              fontSize={16}
-              fontWeight="bold"
-              textAlign="center"
-              py="5"
-              borderBottomWidth={2}
-              borderBottomColor="#00005C">
-              Details Account
-            </Text>
-          </Pressable>
-          <Pressable
-            onPress={() => navigation.navigate('OrderHistory')}
-            width="50%">
-            <Text fontSize={16} textAlign="center" py="5">
-              Order History
-            </Text>
-          </Pressable>
-        </HStack>
+        {role === '2' ? <NavbarUser /> : <NavbarAdmin />}
+        {role === '2' && (
+          <HStack px="5" bg="white">
+            <Pressable width="50%">
+              <Text
+                fontSize={16}
+                fontWeight="bold"
+                textAlign="center"
+                py="5"
+                borderBottomWidth={2}
+                borderBottomColor="#00005C">
+                Details Account
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => navigation.navigate('OrderHistory')}
+              width="50%">
+              <Text fontSize={16} textAlign="center" py="5">
+                Order History
+              </Text>
+            </Pressable>
+          </HStack>
+        )}
         {user?.firstName ? (
           <>
             <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
@@ -250,14 +254,22 @@ const Profile = () => {
                   </Button>
                   <Button
                     onPress={onCameraPress}
-                    mt="3"
+                    my="3"
                     bg="#00005C"
                     borderRadius={16}>
                     <Text color="white">Take a picture</Text>
                   </Button>
-                  <Text py="3" textAlign="center">
-                    {fileName}
-                  </Text>
+                  {image && (
+                    <Box pb="3" justifyContent="center" alignItems="center">
+                      <Image
+                        source={{uri: uri}}
+                        width="150"
+                        height="150"
+                        alt="preview image"
+                        resizeMode="contain"
+                      />
+                    </Box>
+                  )}
                   {successPicture && (
                     <Text pb="3" color="green.600" textAlign="center">
                       {successPicture}
