@@ -13,13 +13,18 @@ import PaymentPage from './PaymentPage';
 import Profile from './Profile';
 import OrderHistory from './OrderHistory';
 import TicketResult from './TicketResult';
+import ManageMovie from './ManageMovie';
+import ManageSchedule from './ManageSchedule';
+import Dashboard from './Dashboard';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {useSelector} from 'react-redux';
+import jwt_decode from 'jwt-decode';
 
 const Stack = createNativeStackNavigator();
 
 const Main = () => {
   const token = useSelector(state => state?.auth?.token);
+  const {role} = token ? jwt_decode(token) : '';
   return (
     <NavigationContainer>
       <NativeBaseProvider>
@@ -48,7 +53,7 @@ const Main = () => {
               />
             </>
           )}
-          {token && (
+          {role === '2' && (
             <>
               <Stack.Screen
                 name="HomePage"
@@ -88,6 +93,30 @@ const Main = () => {
               <Stack.Screen
                 name="TicketResult"
                 component={TicketResult}
+                options={{headerShown: false}}
+              />
+            </>
+          )}
+          {role === '1' && (
+            <>
+              <Stack.Screen
+                name="Dashboard"
+                component={Dashboard}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="ManageMovie"
+                component={ManageMovie}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="ManageSchedule"
+                component={ManageSchedule}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="Profile"
+                component={Profile}
                 options={{headerShown: false}}
               />
             </>
