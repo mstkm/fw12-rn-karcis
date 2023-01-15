@@ -64,6 +64,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 50,
     paddingBottom: 30,
+    backgroundColor: 'white',
   },
   logoWrapper: {
     marginBottom: 30,
