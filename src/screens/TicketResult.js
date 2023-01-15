@@ -45,12 +45,26 @@ const TicketResult = id => {
           <Box p="10" bg="#E5E5E5" zIndex={-100}>
             <Box bg="#FFFFFF" borderRadius={8}>
               <Box alignItems="center" pb="10" pt="8">
-                <Image
-                  source={require('../images/qr-code.png')}
-                  alt="qrcode"
-                  width={200}
-                  height={200}
-                />
+                {moment(transaction?.bookingDate).format('LLL') <
+                moment().format('LLL') ? (
+                  <Box
+                    bg="#F5F6F8"
+                    width={200}
+                    height={200}
+                    alignItems="center"
+                    justifyContent="center">
+                    <Text fontSize="24" fontWeight="bold">
+                      Ticket Expired
+                    </Text>
+                  </Box>
+                ) : (
+                  <Image
+                    source={require('../images/qr-code.png')}
+                    alt="qrcode"
+                    width={200}
+                    height={200}
+                  />
+                )}
               </Box>
               <Stack
                 space={5}
