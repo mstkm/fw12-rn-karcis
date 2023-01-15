@@ -104,8 +104,18 @@ const OrderHistory = () => {
                       <Button
                         onPress={() => handleShowTicket(transaction?.id)}
                         borderRadius={8}
-                        bg="#00BA88">
-                        <Text color="#FFFFFF">Ticket in active</Text>
+                        bg={
+                          moment(transaction?.bookingDate).format('LLL') <
+                          moment().format('LLL')
+                            ? 'black'
+                            : '#00BA88'
+                        }>
+                        <Text color="#FFFFFF">
+                          {moment(transaction?.bookingDate).format('LLL') <
+                          moment().format('LLL')
+                            ? 'Ticket expired'
+                            : 'Ticket in active'}
+                        </Text>
                       </Button>
                     </Box>
                   </Box>
