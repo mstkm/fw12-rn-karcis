@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React from 'react';
 import {
   ScrollView,
@@ -14,8 +15,11 @@ import YupPasword from 'yup-password';
 YupPasword(Yup);
 import Icon from 'react-native-vector-icons/Feather';
 import {useNavigation} from '@react-navigation/native';
+import http from '../helpers/http';
+import {useSelector} from 'react-redux';
 
 const ResetPassword = () => {
+  const email = useSelector(state => state?.resetPassword?.email);
   const navigation = useNavigation();
   // Form Validation
   const ResetPasswordSchema = Yup.object().shape({
@@ -55,8 +59,27 @@ const ResetPassword = () => {
   };
 
   // Handle Reset Password
-  const handleResetPassword = () => {
-    navigation.navigate('SignIn');
+  const [successMessage, setSuccessMessage] = React.useState(null);
+  const [errorMessage, setErrorMessage] = React.useState(null);
+  const handleResetPassword = async values => {
+    try {
+      const response = await http().post('/auth/resetPassword', {
+        email,
+        code: values.code,
+        password: values.password,
+        confirmPassword: values.confirmPassword,
+      });
+      setErrorMessage(null);
+      setSuccessMessage(response?.data?.message);
+      setTimeout(() => {
+        navigation.navigate('SignIn');
+      }, 10000);
+      return response;
+    } catch (error) {
+      console.log(error);
+      setSuccessMessage(null);
+      setErrorMessage(error?.response?.data?.message);
+    }
   };
   return (
     <ScrollView>
@@ -70,9 +93,29 @@ const ResetPassword = () => {
         <Text style={styles.h1}>Set Password</Text>
         <Text style={styles.text}>set your new password</Text>
       </View>
+      <View style={styles.notification}>
+        <Text style={styles.textNotification}>
+          Check your email for the code
+        </Text>
+      </View>
+      {successMessage && (
+        <>
+          <View style={styles.alertSuccess}>
+            <Icon name="alert-circle" size={20} color="black" />
+            <Text style={styles.alertMessage}>{successMessage}</Text>
+          </View>
+        </>
+      )}
+      {errorMessage && (
+        <View style={styles.alertError}>
+          <Icon name="alert-triangle" size={20} color="black" />
+          <Text style={styles.alertMessage}>{errorMessage}</Text>
+        </View>
+      )}
       <View style={styles.containerForm}>
         <Formik
           initialValues={{
+            code: '',
             password: '',
             confirmPassword: '',
           }}
@@ -89,6 +132,19 @@ const ResetPassword = () => {
             touched,
           }) => (
             <>
+              <View style={styles.containerInput}>
+                <Text style={styles.text}>Code</Text>
+                <TextInput
+                  name="code"
+                  keyboardType="numeric"
+                  onChangeText={handleChange('code')}
+                  onBlur={handleBlur('code')}
+                  value={values.code}
+                  autoCapitalize="none"
+                  style={styles.input}
+                  placeholder="Write your code"
+                />
+              </View>
               <View style={styles.containerInput}>
                 <Text style={styles.text}>Password</Text>
                 <TextInput
@@ -149,6 +205,35 @@ const ResetPassword = () => {
 };
 
 const styles = StyleSheet.create({
+  alertSuccess: {
+    flexDirection: 'row',
+    marginHorizontal: 20,
+    marginTop: 30,
+    borderWidth: 1,
+    height: 50,
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    backgroundColor: '#42BA96',
+    borderColor: 'green',
+  },
+  alertError: {
+    flexDirection: 'row',
+    marginHorizontal: 20,
+    marginTop: 30,
+    borderWidth: 1,
+    height: 50,
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    backgroundColor: '#FF4D4D',
+    borderColor: 'red',
+  },
+  alertMessage: {
+    color: 'black',
+    marginLeft: 20,
+    marginRight: 5,
+  },
   containerImage: {
     paddingHorizontal: 20,
     marginTop: 50,
@@ -171,8 +256,21 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 16,
   },
-  containerForm: {
+  notification: {
     marginTop: 30,
+    marginHorizontal: 20,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 4,
+    backgroundColor: 'rgba(244, 183, 64, 0.3)',
+  },
+  textNotification: {
+    color: 'black',
+    fontSize: 16,
+  },
+  containerForm: {
+    marginTop: 10,
   },
   containerInput: {
     paddingHorizontal: 20,
