@@ -14,7 +14,7 @@ import {
 } from 'native-base';
 import React from 'react';
 import NavbarUser from '../components/NavbarUser';
-import Month from '../components/Month';
+// import Month from '../components/Month';
 import Icon from 'react-native-vector-icons/Feather';
 import Footer from '../components/Footer';
 import http from '../helpers/http';
@@ -61,7 +61,15 @@ const ViewAll = () => {
   };
 
   // Handle Details
-  const handleDetails = movieId => {
+  const [isPress, setIsPress] = React.useState(false);
+  const [selectedButton, setSelectedButton] = React.useState(null);
+  const handleDetailsViewAll = movieId => {
+    setIsPress(true);
+    setSelectedButton(movieId);
+    setTimeout(() => {
+      setIsPress(false);
+      setSelectedButton(null);
+    }, 1000);
     dispatch(transactionAction({movieId}));
     navigation.navigate('MovieDetails');
   };
@@ -102,9 +110,9 @@ const ViewAll = () => {
               />
             </Box>
           </HStack>
-          <Box>
+          {/* <Box>
             <Month />
-          </Box>
+          </Box> */}
           {dataMovies?.results ? (
             <Box
               display="flex"
@@ -147,16 +155,28 @@ const ViewAll = () => {
                         {movie?.genre}
                       </Text>
                       <Pressable
-                        onPress={() => handleDetails(movie?.id)}
+                        onPress={() => handleDetailsViewAll(movie?.id)}
                         borderWidth="1"
                         borderColor="#00005C"
+                        backgroundColor={
+                          isPress && selectedButton === movie?.id
+                            ? '#00005C'
+                            : 'white'
+                        }
                         borderRadius="4"
                         justifyContent="center"
                         alignItems="center"
                         width="125"
                         height="30px"
                         mb="1">
-                        <Text color="#00005C">Details</Text>
+                        <Text
+                          color={
+                            isPress && selectedButton === movie?.id
+                              ? 'white'
+                              : '#00005C'
+                          }>
+                          Details
+                        </Text>
                       </Pressable>
                     </Box>
                   </Box>

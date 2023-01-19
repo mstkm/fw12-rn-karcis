@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Box,
   NativeBaseProvider,
@@ -8,6 +9,7 @@ import {
   HStack,
   Image,
   Button,
+  Skeleton,
 } from 'native-base';
 import React from 'react';
 import Icon from 'react-native-vector-icons/Feather';
@@ -17,6 +19,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import moment from 'moment';
 import {transaction as transactionAction} from '../redux/reducers/transaction';
 import {useNavigation} from '@react-navigation/native';
+import http from '../helpers/http';
 
 const OrderPage = () => {
   const dispatch = useDispatch();
@@ -32,12 +35,50 @@ const OrderPage = () => {
     movieTitle,
     price,
   } = useSelector(state => state?.transaction);
+  const token = useSelector(state => state?.auth?.token);
+
+  // Get transactions
+  const [transactions, setTransactions] = React.useState(null);
+  const movieSchedulesArr = transactions?.map(el => el.movieScheduleId);
+  const bookingDatesArr = transactions?.map(el => el.bookingDate.split('T')[0]);
+  const bookingTimesArr = transactions?.map(el => el.bookingTime);
+  const seatNumSold = transactions?.map(el => el.seatNum);
+  const [seatNumSoldArr, setSeatNumSoldArr] = React.useState([]);
+  const [showChooseSeat, setShowChooseSeat] = React.useState(false);
+  // console.log(seatNumSold?.join(', '));
+  React.useEffect(() => {
+    getTransactions().then(response => {
+      setTransactions(response?.data?.results);
+      if (
+        bookingDatesArr?.includes(bookingDate) &&
+        movieSchedulesArr?.includes(movieScheduleId) &&
+        bookingTimesArr?.includes(bookingTime)
+      ) {
+        setSeatNumSoldArr(seatNumSold?.join(', ').split(', '));
+      } else {
+        setSeatNumSoldArr(null);
+      }
+      setTimeout(() => {
+        setShowChooseSeat(true);
+      }, 1000);
+    });
+  }, [transactions]);
+  const getTransactions = async () => {
+    try {
+      const response = await http(token).get('/transactions?limit=1000');
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Choose Seat
   const alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
   const number1 = [1, 2, 3, 4, 5, 6, 7];
   const number2 = [8, 9, 10, 11, 12, 13, 14];
   const [selectedSeat, setSelectedSeat] = React.useState([]);
   const handleChooseSeat = seat => {
-    if (!selectedSeat.includes(seat)) {
+    if (!selectedSeat.includes(seat) && !seatNumSoldArr?.includes(seat)) {
       setSelectedSeat([...selectedSeat, seat]);
     } else {
       setSelectedSeat(selectedSeat.filter(el => el !== seat));
@@ -72,62 +113,76 @@ const OrderPage = () => {
           </Text>
           <Box bg="white" px="3" py="5" borderRadius={8}>
             <Box width="full" height="2" bg="#9570FE" borderRadius="8" />
-            <HStack space={3} justifyContent="center" pb="5" pt="3">
-              <Box>
-                {alphabet.map((alp, i) => {
-                  return (
-                    <Box key={String(i)} flexDirection="row">
-                      {number1.map((num, index) => {
-                        const seat = alp + num;
-                        return (
-                          <Pressable
-                            key={String(index)}
-                            borderWidth={1}
-                            borderRadius={4}
-                            w="18px"
-                            h="18px"
-                            m="0.5"
-                            bg={
-                              selectedSeat.includes(seat)
-                                ? '#00005C'
-                                : '#D6D8E7'
-                            }
-                            onPress={() => handleChooseSeat(seat)}
-                          />
-                        );
-                      })}
-                    </Box>
-                  );
-                })}
-              </Box>
-              <Box>
-                {alphabet.map((alp, i) => {
-                  return (
-                    <Box key={String(i)} flexDirection="row">
-                      {number2.map((num, index) => {
-                        const seat = alp + num;
-                        return (
-                          <Pressable
-                            key={String(index)}
-                            borderWidth={1}
-                            borderRadius={4}
-                            w="18px"
-                            h="18px"
-                            m="0.5"
-                            bg={
-                              selectedSeat.includes(seat)
-                                ? '#00005C'
-                                : '#D6D8E7'
-                            }
-                            onPress={() => handleChooseSeat(seat)}
-                          />
-                        );
-                      })}
-                    </Box>
-                  );
-                })}
-              </Box>
-            </HStack>
+            {showChooseSeat ? (
+              <HStack space={3} justifyContent="center" pb="5" pt="3">
+                <Box>
+                  {alphabet.map((alp, i) => {
+                    return (
+                      <Box key={String(i)} flexDirection="row">
+                        {number1.map((num, index) => {
+                          const seat = alp + num;
+                          return (
+                            <Pressable
+                              key={String(index)}
+                              borderWidth={1}
+                              borderRadius={4}
+                              w="18px"
+                              h="18px"
+                              m="0.5"
+                              bg={
+                                seatNumSoldArr?.includes(seat) &&
+                                bookingDatesArr?.includes(bookingDate) &&
+                                bookingTimesArr?.includes(bookingTime) &&
+                                movieSchedulesArr?.includes(movieScheduleId)
+                                  ? '#6E7191'
+                                  : selectedSeat.includes(seat)
+                                  ? '#00005C'
+                                  : '#D6D8E7'
+                              }
+                              onPress={() => handleChooseSeat(seat)}
+                            />
+                          );
+                        })}
+                      </Box>
+                    );
+                  })}
+                </Box>
+                <Box>
+                  {alphabet.map((alp, i) => {
+                    return (
+                      <Box key={String(i)} flexDirection="row">
+                        {number2.map((num, index) => {
+                          const seat = alp + num;
+                          return (
+                            <Pressable
+                              key={String(index)}
+                              borderWidth={1}
+                              borderRadius={4}
+                              w="18px"
+                              h="18px"
+                              m="0.5"
+                              bg={
+                                seatNumSoldArr?.includes(seat) &&
+                                bookingDatesArr?.includes(bookingDate) &&
+                                bookingTimesArr?.includes(bookingTime) &&
+                                movieSchedulesArr?.includes(movieScheduleId)
+                                  ? '#6E7191'
+                                  : selectedSeat.includes(seat)
+                                  ? '#00005C'
+                                  : '#D6D8E7'
+                              }
+                              onPress={() => handleChooseSeat(seat)}
+                            />
+                          );
+                        })}
+                      </Box>
+                    );
+                  })}
+                </Box>
+              </HStack>
+            ) : (
+              <Skeleton h="48" py="5" />
+            )}
             <Text fontSize={16} fontWeight="bold" mb="3">
               Seating Key
             </Text>

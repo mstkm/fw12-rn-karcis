@@ -17,10 +17,13 @@ import Icon from 'react-native-vector-icons/Feather';
 import {useNavigation} from '@react-navigation/native';
 import http from '../helpers/http';
 import {useSelector} from 'react-redux';
+import {resetPasswordToNull as resetPasswordToNullAction} from '../redux/reducers/resetPassword';
+import {useDispatch} from 'react-redux';
 
 const ResetPassword = () => {
   const email = useSelector(state => state?.resetPassword?.email);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   // Form Validation
   const ResetPasswordSchema = Yup.object().shape({
     password: Yup.string()
@@ -73,7 +76,8 @@ const ResetPassword = () => {
       setSuccessMessage(response?.data?.message);
       setTimeout(() => {
         navigation.navigate('SignIn');
-      }, 10000);
+      }, 5000);
+      dispatch(resetPasswordToNullAction());
       return response;
     } catch (error) {
       console.log(error);

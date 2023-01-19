@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {
   View,
@@ -8,25 +10,64 @@ import {
   Pressable,
 } from 'react-native';
 import http from '../helpers/http';
-import Month from './Month';
+// import Month from './Month';
 import {useNavigation} from '@react-navigation/native';
+import {useDispatch} from 'react-redux';
+import {transaction as transactionAction} from '../redux/reducers/transaction';
 
 const UpcomingMovies = () => {
+  const dispatch = useDispatch();
   const navigation = useNavigation();
   // Get Upcoming Movies
+  const [month, setMonth] = React.useState('');
   const [upcomingMovies, setUpcomingMovies] = React.useState([]);
   React.useEffect(() => {
     getUpcomingMovies().then(response => {
       setUpcomingMovies(response?.data?.results);
     });
-  }, []);
+  }, [upcomingMovies]);
   const getUpcomingMovies = async () => {
     try {
-      const response = await http().get('/movies/upcoming');
+      const response = await http().get(`/movies/upcoming?month=${month}`);
       return response;
     } catch (error) {
       console.log(error);
     }
+  };
+
+  // Month
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+  const [selectedBtnMonth, setSelectedBtnMonth] = React.useState(0);
+  const handlePressBtnMonth = index => {
+    setSelectedBtnMonth(index);
+    setMonth(index + 1);
+  };
+
+  // Handle Details
+  const [isPress, setIsPress] = React.useState(false);
+  const [selectedButton, setSelectedButton] = React.useState(null);
+  const handleDetails = movieId => {
+    setIsPress(true);
+    setSelectedButton(movieId);
+    setTimeout(() => {
+      setIsPress(false);
+      setSelectedButton(null);
+    }, 1000);
+    dispatch(transactionAction({movieId}));
+    navigation.navigate('MovieDetails');
   };
   return (
     <>
@@ -37,28 +78,77 @@ const UpcomingMovies = () => {
             <Text style={styles.textUpcomingMovies2}>view all</Text>
           </Pressable>
         </View>
-        <Month />
+        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+          {months?.map((monthItem, index) => {
+            return (
+              <Pressable
+                key={String(index)}
+                onPress={() => handlePressBtnMonth(index)}
+                style={{
+                  backgroundColor:
+                    selectedBtnMonth === index ? '#00005C' : 'transparent',
+                  borderColor: '#00005C',
+                  borderWidth: 1,
+                  width: 125,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: 40,
+                  marginRight: 12,
+                  borderRadius: 4,
+                }}>
+                <Text
+                  style={{
+                    color: selectedBtnMonth === index ? 'white' : '#00005C',
+                  }}>
+                  {monthItem}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
         <View>
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-            {upcomingMovies?.map(movie => {
-              return (
-                <View key={String(movie?.id)} style={styles.upcomingMovie}>
-                  <Image
-                    source={{uri: movie?.picture}}
-                    style={styles.imageUpcomingMovie}
-                  />
-                  <View style={styles.detailsWrapper}>
-                    <Text numberOfLines={1} style={styles.textTitle}>
-                      {movie?.title}
+            {upcomingMovies?.map(movie => (
+              <View key={String(movie?.id)} style={styles.upcomingMovie}>
+                <Image
+                  source={{uri: movie?.picture}}
+                  style={styles.imageUpcomingMovie}
+                />
+                <View style={styles.detailsWrapper}>
+                  <Text numberOfLines={1} style={styles.textTitle}>
+                    {movie?.title}
+                  </Text>
+                  <Text style={styles.textGenre}>{movie?.genre}</Text>
+                  <Pressable
+                    onPress={() => handleDetails(movie?.id)}
+                    style={{
+                      borderColor: '#00005C',
+                      backgroundColor:
+                        isPress && selectedButton === movie?.id
+                          ? '#00005C'
+                          : 'white',
+                      borderWidth: 1,
+                      width: '100%',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      height: 30,
+                      borderRadius: 4,
+                      marginTop: 20,
+                      marginBottom: 10,
+                    }}>
+                    <Text
+                      style={{
+                        color:
+                          isPress && selectedButton === movie?.id
+                            ? 'white'
+                            : '#00005C',
+                      }}>
+                      Details
                     </Text>
-                    <Text style={styles.textGenre}>{movie?.genre}</Text>
-                    <Pressable style={styles.btnDetails}>
-                      <Text style={styles.textBtnDetails}>Details</Text>
-                    </Pressable>
-                  </View>
+                  </Pressable>
                 </View>
-              );
-            })}
+              </View>
+            ))}
           </ScrollView>
         </View>
       </View>

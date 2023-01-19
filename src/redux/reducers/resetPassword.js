@@ -11,6 +11,9 @@ const resetPasswordReducer = createSlice({
     resetPassword: (state, {payload}) => {
       state.email = payload.email;
     },
+    resetPasswordToNull: (state, {payload}) => {
+      state.email = null;
+    },
   },
   extraReducers: build => {
     // build.addCase(resetPasswordReducerAction.fulfilled, (state, {payload}) => {
@@ -19,6 +22,7 @@ const resetPasswordReducer = createSlice({
   },
 });
 
-export const {resetPassword} = resetPasswordReducer.actions;
+export const {resetPassword, resetPasswordToNull} =
+  resetPasswordReducer.actions;
 
 export default resetPasswordReducer.reducer;

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Box,
   NativeBaseProvider,
@@ -20,11 +21,42 @@ import CalendarPicker from 'react-native-calendar-picker';
 import moment from 'moment';
 import Icon from 'react-native-vector-icons/Feather';
 import Footer from '../components/Footer';
+import http from '../helpers/http';
 
 const ManageSchedule = () => {
+  // Get movies
+  const [movies, setMovies] = React.useState([]);
+  React.useEffect(() => {
+    getMovies().then(response => {
+      setMovies(response?.data?.results);
+    });
+  }, [movies]);
+  const getMovies = async () => {
+    try {
+      const response = await http().get('/movies?limit=1000&sortBy=title');
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Handle select movie
+  const [movieById, setMovieById] = React.useState(null);
+  const getMovie = async movieId => {
+    if (movieId) {
+      try {
+        const response = await http().get(`/movies/${movieId}`);
+        setMovieById(response?.data?.results);
+        return response;
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
   const [showModal, setShowModal] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState(null);
-  const [sort, setSort] = React.useState('');
+  // const [sort, setSort] = React.useState('');
   const [premiere, setPremiere] = React.useState('');
   const [location, setLocation] = React.useState('');
   const [locationSearch, setLocationSearch] = React.useState('');
@@ -58,20 +90,38 @@ const ManageSchedule = () => {
             <Box>
               <Box alignItems="center" mb="5">
                 <Box
+                  alignItems="center"
+                  justifyContent="center"
                   borderWidth={1}
                   borderColor="#A0A3BD"
                   borderRadius={4}
                   width="223"
                   height="308"
                   p="8">
-                  <Image
-                    source={require('../images/spiderman.png')}
-                    alt="spiderman"
-                    width="159"
-                    height="244"
-                    resizeMode="contain"
-                    // borderRadius={4}
-                  />
+                  {movieById ? (
+                    <>
+                      <Image
+                        source={{
+                          uri: movieById?.picture,
+                        }}
+                        alt={movieById?.title}
+                        width="156"
+                        height="236"
+                        resizeMode="contain"
+                        borderRadius={4}
+                      />
+                    </>
+                  ) : (
+                    <Image
+                      source={{
+                        uri: 'https://res.cloudinary.com/dvzrmzldr/image/upload/v1673950214/icons8-image-64_fzftmz.png',
+                      }}
+                      alt="banner movie"
+                      width="100"
+                      height="100"
+                      resizeMode="contain"
+                    />
+                  )}
                 </Box>
               </Box>
               <Stack space="5">
@@ -80,19 +130,22 @@ const ManageSchedule = () => {
                   <Box>
                     <Select
                       bg="#FCFDFE"
-                      selectedValue={sort}
-                      onValueChange={value => setSort(value)}
+                      onValueChange={value => getMovie(value)}
                       minWidth="100"
                       height={38}
                       placeholder="Select movie"
                       fontSize="14"
                       borderRadius="16">
-                      <Select.Item label="Spiderman" value="Spiderman">
-                        Spiderman
-                      </Select.Item>
-                      <Select.Item label="Tenet" value="Tenet">
-                        Tenet
-                      </Select.Item>
+                      {movies?.map(moviesItem => {
+                        return (
+                          <Select.Item
+                            key={String(moviesItem?.id)}
+                            label={moviesItem?.title}
+                            value={moviesItem?.id}>
+                            {moviesItem?.title}
+                          </Select.Item>
+                        );
+                      })}
                     </Select>
                   </Box>
                 </Box>
@@ -272,8 +325,8 @@ const ManageSchedule = () => {
             <Box>
               <Select
                 bg="#FCFDFE"
-                selectedValue={sort}
-                onValueChange={value => setSort(value)}
+                // selectedValue={sort}
+                // onValueChange={value => setSort(value)}
                 minWidth="90"
                 height={10}
                 accessibilityLabel="Choose Service"
@@ -311,8 +364,8 @@ const ManageSchedule = () => {
             <Box>
               <Select
                 bg="#FCFDFE"
-                selectedValue={movie}
-                onValueChange={value => setMovie(value)}
+                // selectedValue={movie}
+                // onValueChange={value => setMovie(value)}
                 minWidth="120"
                 height={10}
                 accessibilityLabel="Choose Service"

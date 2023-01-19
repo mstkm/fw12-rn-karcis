@@ -103,6 +103,7 @@ const PaymentPage = () => {
     );
     createTransaction();
   };
+  console.log();
 
   // Create Transaction
   const createTransaction = async () => {
@@ -121,7 +122,7 @@ const PaymentPage = () => {
         phoneNumber: phoneNumber ? phoneNumber : user?.phoneNumber,
         paymentMethodId: selectedPaymentMethod,
         statusId: 1,
-        seatNum,
+        seatNum: seatNum.join(', '),
         bookingTime,
         totalPrice: seatNum.length * price,
       });
@@ -131,6 +132,7 @@ const PaymentPage = () => {
       console.log(error?.response);
     }
   };
+
   return (
     <NativeBaseProvider>
       <ScrollView stickyHeaderIndices={[0]} stickyHeaderHiddenOnScroll={true}>
@@ -260,9 +262,6 @@ const PaymentPage = () => {
             </Box>
           </Stack>
         </Stack>
-        <Box>
-          <Text />
-        </Box>
         <Box px="5" pb="8" bg="#E5E5E5">
           <Button
             onPress={handlePayOrder}

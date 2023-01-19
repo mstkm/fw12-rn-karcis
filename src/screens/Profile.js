@@ -134,7 +134,7 @@ const Profile = () => {
   const [successPicture, setSuccessPicture] = React.useState(null);
   const [errorPicture, setErrorPicture] = React.useState(null);
   const updatePicture = async () => {
-    if (image && fileSize <= 5024 * 5024) {
+    if (image && fileSize <= 5024 * 1024) {
       try {
         const form = new FormData();
         form.append('picture', {
@@ -176,7 +176,7 @@ const Profile = () => {
   const [successMessage, setSuccessMessage] = React.useState(null);
   const updateDataUser = async () => {
     try {
-      const response = await http(token).patch('/profile/update', {
+      const response = await http(token).patch(`/users/${id}`, {
         firstName,
         lastName,
         email,
@@ -195,9 +195,11 @@ const Profile = () => {
     React.useState('');
   const handleUpdatePassword = async values => {
     const {password, confirmPassword} = values;
+    console.log(password);
+    console.log(confirmPassword);
     if (password === confirmPassword) {
       try {
-        const response = await http(token).patch('/profile/update', {
+        const response = await http(token).patch(`/users/${id}`, {
           password,
         });
         setPasswordSuccessMessage('Successfully updated');
@@ -239,7 +241,7 @@ const Profile = () => {
             </Pressable>
           </HStack>
         )}
-        {user?.firstName ? (
+        {user.email ? (
           <>
             <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
               <Modal.Content maxWidth="400px">
@@ -297,7 +299,11 @@ const Profile = () => {
                 <Text px="5">INFO</Text>
                 <Box py="8" alignItems="center" position="relative">
                   <Image
-                    source={{uri: 'https://picsum.photos/200/300'}}
+                    source={{
+                      uri: user?.picture
+                        ? user.picture
+                        : 'https://res.cloudinary.com/dvzrmzldr/image/upload/v1673836551/Desain_tanpa_judul_bsia1l.png',
+                    }}
                     width={150}
                     height={150}
                     alt="profile"
@@ -478,13 +484,17 @@ const Profile = () => {
                           </Box>
                         </Box>
                         {errors.confirmPassword && touched.confirmPassword ? (
-                          <Text color="red.600">{errors.confirmPassword}</Text>
+                          <Text color="red.600" textAlign="center" mt="5">
+                            {errors.confirmPassword}
+                          </Text>
                         ) : null}
                         {errorPassword && (
-                          <Text color="red.600">{errorPassword}</Text>
+                          <Text color="red.600" textAlign="center" mt="5">
+                            {errorPassword}
+                          </Text>
                         )}
                         {passwordSuccessMessage && (
-                          <Text color="green.600">
+                          <Text color="green.600" textAlign="center" mt="5">
                             {passwordSuccessMessage}
                           </Text>
                         )}

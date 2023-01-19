@@ -34,7 +34,15 @@ const NowShowing = () => {
   const [selectedMovie, setSelectedMovie] = React.useState(null);
 
   // Handle Details
+  const [isPress, setIsPress] = React.useState(false);
+  const [selectedButton, setSelectedButton] = React.useState(null);
   const handleDetails = movieId => {
+    setIsPress(true);
+    setSelectedButton(movieId);
+    setTimeout(() => {
+      setIsPress(false);
+      setSelectedButton(null);
+    }, 1000);
     dispatch(transactionAction({movieId}));
     navigation.navigate('MovieDetails');
   };
@@ -91,8 +99,30 @@ const NowShowing = () => {
                       <Text style={styles.textGenre}>{movie?.genre}</Text>
                       <Pressable
                         onPress={() => handleDetails(movie?.id)}
-                        style={styles.btnDetails}>
-                        <Text style={styles.textBtnDetails}>Details</Text>
+                        style={{
+                          borderColor: '#00005C',
+                          backgroundColor:
+                            isPress && selectedButton === movie?.id
+                              ? '#00005C'
+                              : 'white',
+                          borderWidth: 1,
+                          width: '100%',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          height: 30,
+                          borderRadius: 4,
+                          marginTop: 20,
+                          marginBottom: 10,
+                        }}>
+                        <Text
+                          style={{
+                            color:
+                              isPress && selectedButton === movie?.id
+                                ? 'white'
+                                : '#00005C',
+                          }}>
+                          Details
+                        </Text>
                       </Pressable>
                     </View>
                   </>

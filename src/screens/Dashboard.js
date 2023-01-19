@@ -5,51 +5,25 @@ import {
   Text,
   Stack,
   Image,
-  Input,
-  Modal,
-  Pressable,
-  HStack,
   Button,
   Select,
 } from 'native-base';
 import React from 'react';
 import NavbarAdmin from '../components/NavbarAdmin';
-import CalendarPicker from 'react-native-calendar-picker';
-import moment from 'moment';
-import Icon from 'react-native-vector-icons/Feather';
 import Footer from '../components/Footer';
 
 const Dashboard = () => {
-  const [showModal, setShowModal] = React.useState(false);
-  const [selectedDate, setSelectedDate] = React.useState(null);
-  const [sort, setSort] = React.useState('');
-  const [premiere, setPremiere] = React.useState('');
   const [location, setLocation] = React.useState('');
   const [movie, setMovie] = React.useState('');
-  const [page, setPage] = React.useState(1);
-  const times = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'];
+  const [premiere, setPremiere] = React.useState('');
 
-  const increamentPage = () => {
-    if (page >= 1 && page < 5) {
-      setPage(page + 1);
-    } else {
-      setPage(page);
-    }
-  };
-  const decreamentPage = () => {
-    if (page > 1) {
-      setPage(page - 1);
-    } else {
-      setPage(page);
-    }
-  };
   return (
     <NativeBaseProvider>
       <ScrollView stickyHeaderIndices={[0]} stickyHeaderHiddenOnScroll={true}>
         <NavbarAdmin />
         <Stack px="5" py="10" bg="#E5E5E5">
           <Text fontSize={18} fontWeight="bold" mb="3">
-            Form Schedule
+            Dashboard
           </Text>
           <Box bg="white" px="5" py="8" borderRadius={4}>
             <Box>
@@ -66,7 +40,6 @@ const Dashboard = () => {
                     width="full"
                     height="150"
                     resizeMode="contain"
-                    // borderRadius={4}
                   />
                 </Box>
               </Box>
@@ -74,8 +47,8 @@ const Dashboard = () => {
                 <Box>
                   <Select
                     bg="#FCFDFE"
-                    selectedValue={location}
-                    onValueChange={value => setLocation(value)}
+                    selectedValue={movie}
+                    onValueChange={value => setMovie(value)}
                     minWidth="120"
                     height={10}
                     accessibilityLabel="Choose Service"

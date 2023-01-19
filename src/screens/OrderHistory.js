@@ -30,7 +30,7 @@ const OrderHistory = () => {
     getTransactions().then(response => {
       setTransactions(response?.data?.results);
     });
-  }, []);
+  }, [transactions]);
   const getTransactions = async () => {
     try {
       const response = await http(token).get(`/transactions/${id}`);
@@ -66,70 +66,62 @@ const OrderHistory = () => {
             </Text>
           </Pressable>
         </HStack>
-        {transactions[0]?.cinemaPicture ? (
-          <Stack space={5} py="10" bg="#E5E5E5">
-            {transactions?.map(transaction => {
-              return (
-                <Box key={String(transaction?.id)} px="5">
-                  <Box bg="white" py="5" borderRadius={16}>
-                    <Box pb="8" px="5">
-                      <Image
-                        source={{uri: transaction?.cinemaPicture}}
-                        alt="cineone21"
-                        width={120}
-                        height={50}
-                        resizeMode="contain"
-                        mb="3"
-                      />
-                      <Text>
-                        {moment(transaction?.bookingDate).format('ll')}
-                        {'   -   '}
-                        {transaction?.bookingTime.split(':')[0] +
-                          ':' +
-                          transaction?.bookingTime.split(':')[1] +
-                          (transaction?.bookingTime.split(':')[0] < 12
-                            ? 'am'
-                            : 'pm')}
+        <Stack space={5} py="10" bg="#E5E5E5">
+          {transactions?.sort().map(transaction => {
+            return (
+              <Box key={String(transaction?.id)} px="5">
+                <Box bg="white" py="5" borderRadius={16}>
+                  <Box pb="8" px="5">
+                    <Image
+                      source={{uri: transaction?.cinemaPicture}}
+                      alt="cineone21"
+                      width={120}
+                      height={50}
+                      resizeMode="contain"
+                      mb="3"
+                    />
+                    <Text>
+                      {moment(transaction?.bookingDate).format('ll')}
+                      {'   -   '}
+                      {transaction?.bookingTime.split(':')[0] +
+                        ':' +
+                        transaction?.bookingTime.split(':')[1] +
+                        (transaction?.bookingTime.split(':')[0] < 12
+                          ? 'am'
+                          : 'pm')}
+                    </Text>
+                    <Text fontWeight="bold" fontSize={18}>
+                      {transaction?.movieTitle}
+                    </Text>
+                  </Box>
+                  <Box
+                    pt="8"
+                    pb="3"
+                    px="5"
+                    borderTopWidth={1}
+                    borderTopColor="#DEDEDE">
+                    <Button
+                      onPress={() => handleShowTicket(transaction?.id)}
+                      borderRadius={8}
+                      bg={
+                        moment(transaction?.bookingDate).format('LLL') <
+                        moment().format('LLL')
+                          ? 'black'
+                          : '#00BA88'
+                      }>
+                      <Text color="#FFFFFF">
+                        {moment(transaction?.bookingDate).format('LLL') <
+                        moment().format('LLL')
+                          ? 'Ticket expired'
+                          : 'Ticket in active'}
                       </Text>
-                      <Text fontWeight="bold" fontSize={18}>
-                        {transaction?.movieTitle}
-                      </Text>
-                    </Box>
-                    <Box
-                      pt="8"
-                      pb="3"
-                      px="5"
-                      borderTopWidth={1}
-                      borderTopColor="#DEDEDE">
-                      <Button
-                        onPress={() => handleShowTicket(transaction?.id)}
-                        borderRadius={8}
-                        bg={
-                          moment(transaction?.bookingDate).format('LLL') <
-                          moment().format('LLL')
-                            ? 'black'
-                            : '#00BA88'
-                        }>
-                        <Text color="#FFFFFF">
-                          {moment(transaction?.bookingDate).format('LLL') <
-                          moment().format('LLL')
-                            ? 'Ticket expired'
-                            : 'Ticket in active'}
-                        </Text>
-                      </Button>
-                    </Box>
+                    </Button>
                   </Box>
                 </Box>
-              );
-            })}
-          </Stack>
-        ) : (
-          <Box px="5" py="10">
-            <Skeleton h="400px" />
-            <Skeleton.Text py="4" />
-            <Skeleton px="4" my="4" rounded="xl" h="20" startColor="gray.300" />
-          </Box>
-        )}
+              </Box>
+            );
+          })}
+        </Stack>
         <Footer />
       </ScrollView>
     </NativeBaseProvider>
