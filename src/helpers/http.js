@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {BACKEND_URL} from '@env';
 
 const http = token => {
   const headers = {};
@@ -6,7 +7,7 @@ const http = token => {
     headers.authorization = 'Bearer ' + token;
   }
   const instance = axios.create({
-    baseURL: 'https://karcis-backend.vercel.app',
+    baseURL: BACKEND_URL,
     headers,
   });
   return instance;
