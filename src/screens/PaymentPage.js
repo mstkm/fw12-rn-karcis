@@ -126,7 +126,18 @@ const PaymentPage = () => {
         bookingTime,
         totalPrice: seatNum.length * price,
       });
-      navigation.navigate('OrderHistory');
+      // navigation.navigate('OrderHistory');
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'HomePage',
+          },
+          {
+            name: 'OrderHistory',
+          },
+        ],
+      });
       return response;
     } catch (error) {
       console.log(error?.response);
