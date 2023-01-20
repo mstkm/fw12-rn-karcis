@@ -423,7 +423,10 @@ const ManageMovie = () => {
                 </HStack>
                 <Box>
                   <Text mb="2">Synopsis</Text>
-                  <TextArea
+                  <Input
+                    multiline={true}
+                    numberOfLines={10}
+                    textAlignVertical="top"
                     onChangeText={value => setSynopsis(value)}
                     defaultValue={movie ? movie?.synopsis : synopsis}
                     fontSize={14}
