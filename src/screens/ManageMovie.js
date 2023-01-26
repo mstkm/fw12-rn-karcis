@@ -10,7 +10,6 @@ import {
   Modal,
   Pressable,
   HStack,
-  TextArea,
   Button,
   Select,
   FormControl,
@@ -108,7 +107,6 @@ const ManageMovie = () => {
   const [inputCategory, setInputCategory] = React.useState(null);
   const inputCategoryArr = inputCategory?.split(', ');
   const [dataGenre, setDataGenre] = React.useState(null);
-  const genres = dataGenre?.map(genre => genre.name);
   React.useEffect(() => {
     getGenre().then(response => {
       setDataGenre(response?.data?.results);
@@ -130,7 +128,6 @@ const ManageMovie = () => {
   const [inputCasts, setInputCasts] = React.useState(null);
   const inputCastsArr = inputCasts?.split(', ');
   const [dataCasts, setDataCasts] = React.useState(null);
-  const casts = dataCasts?.map(cast => cast.name);
   React.useEffect(() => {
     getCasts().then(response => {
       setDataCasts(response?.data?.results);
@@ -171,18 +168,14 @@ const ManageMovie = () => {
       });
       const movieId = responseMovie?.data?.results?.id;
       inputCategoryArr.forEach(async genre => {
-        // if (!genres.includes(genre)) {
         const responseGenre = await http(token).post('/genre', {name: genre});
         const genreId = responseGenre?.data?.results?.id;
         await http(token).post('/movieGenre', {movieId, genreId});
-        // }
       });
       inputCastsArr.forEach(async cast => {
-        // if (!casts.includes(cast)) {
         const responseCasts = await http(token).post('/casts', {name: cast});
         const castsId = responseCasts?.data?.results?.id;
         await http(token).post('/movieCasts', {movieId, castsId});
-        // }
       });
       setAlertUpdateMovie(true);
       setTimeout(() => {
@@ -498,10 +491,10 @@ const ManageMovie = () => {
             </Box>
           </HStack>
           <HStack mb="8" justifyContent="center" alignItems="center">
-            {movies?.results?.map(movie => {
+            {movies?.results?.map(moviesItem => {
               return (
                 <Box
-                  key={String(movie?.id)}
+                  key={String(moviesItem?.id)}
                   display="flex"
                   flexDirection="row"
                   flexWrap="wrap"
@@ -519,7 +512,7 @@ const ManageMovie = () => {
                     alignItems="center"
                     borderRadius="8">
                     <Image
-                      source={{uri: movie?.picture}}
+                      source={{uri: moviesItem?.picture}}
                       alt="spiderman"
                       width="150"
                       height="200"
@@ -533,13 +526,13 @@ const ManageMovie = () => {
                         fontWeight="bold"
                         numberOfLines={1}
                         ellipsizeMode="tail">
-                        {movie?.title}
+                        {moviesItem?.title}
                       </Text>
                       <Text flex={1} textAlign="center">
-                        {movie?.genre}
+                        {moviesItem?.genre}
                       </Text>
                       <Pressable
-                        onPress={() => getMovieById(movie?.id)}
+                        onPress={() => getMovieById(moviesItem?.id)}
                         borderWidth="1"
                         borderColor="#00005C"
                         borderRadius="4"
