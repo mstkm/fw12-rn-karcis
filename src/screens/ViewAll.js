@@ -52,7 +52,7 @@ const ViewAll = () => {
   const getMovies = async () => {
     try {
       const response = await http().get(
-        `/movies/nowShowing?limit=4&page=${page}&search=${search}&sort=${sort}&sortBy=title`,
+        `/movies?limit=4&page=${page}&search=${search}&sort=${sort}&sortBy=title`,
       );
       return response;
     } catch (error) {
@@ -113,6 +113,9 @@ const ViewAll = () => {
           {/* <Box>
             <Month />
           </Box> */}
+          {dataMovies?.results?.length === 0 && (
+            <Text textAlign="center">No result</Text>
+          )}
           {dataMovies?.results ? (
             <Box
               display="flex"
