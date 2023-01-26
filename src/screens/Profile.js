@@ -31,6 +31,7 @@ import {logout as logoutAction} from '../redux/reducers/auth';
 import {transactionLogout as transactionLogoutAction} from '../redux/reducers/transaction';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import NavbarAdmin from '../components/NavbarAdmin';
+import {Spinner} from 'native-base';
 
 const Profile = () => {
   const token = useSelector(state => state?.auth?.token);
@@ -131,9 +132,13 @@ const Profile = () => {
   };
 
   // Update Picture
+  const [loadingPicture, setLoadingPicture] = React.useState(false);
   const [successPicture, setSuccessPicture] = React.useState(null);
   const [errorPicture, setErrorPicture] = React.useState(null);
   const updatePicture = async () => {
+    setLoadingPicture(true);
+    setSuccessPicture(null);
+    setErrorPicture(null);
     if (image && fileSize <= 5024 * 1024) {
       try {
         const form = new FormData();
@@ -147,20 +152,21 @@ const Profile = () => {
             'Content-type': 'multipart/form-data',
           },
         });
-        setErrorPicture();
+        setLoadingPicture(false);
         setSuccessPicture('Successfully updated');
         setTimeout(() => {
           setShowModal(false);
         }, 3000);
         return response;
       } catch (error) {
+        setLoadingPicture(false);
         console.log(error);
       }
     } else if (!image) {
-      setSuccessPicture();
+      setLoadingPicture(false);
       setErrorPicture('Image not found');
     } else {
-      setSuccessPicture();
+      setLoadingPicture(false);
       setErrorPicture('File to large');
     }
   };
@@ -173,8 +179,13 @@ const Profile = () => {
   const [phoneNumber, setPhoneNumber] = React.useState('');
 
   // Update Data User
+  const [loadingInformation, setLoadingInformation] = React.useState(false);
   const [successMessage, setSuccessMessage] = React.useState(null);
+  const [errorMessage, setErrorMessage] = React.useState(null);
   const updateDataUser = async () => {
+    setLoadingInformation(true);
+    setSuccessMessage(null);
+    setErrorMessage(null);
     try {
       const response = await http(token).patch(`/users/${id}`, {
         firstName,
@@ -182,33 +193,57 @@ const Profile = () => {
         email,
         phoneNumber,
       });
+      setLoadingInformation(false);
       setSuccessMessage('Successfully updated');
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
       return response;
     } catch (error) {
       console.log(error);
+      setLoadingInformation(false);
+      setErrorMessage(error?.response?.data?.message);
+      setTimeout(() => {
+        setErrorMessage(null);
+      }, 3000);
     }
   };
 
   // Update Password User
+  const [loadingPassword, setLoadingPassword] = React.useState(false);
   const [errorPassword, setErrorPassword] = React.useState(null);
   const [passwordSuccessMessage, setPasswordSuccessMessage] =
     React.useState('');
   const handleUpdatePassword = async values => {
     const {password, confirmPassword} = values;
-    console.log(password);
-    console.log(confirmPassword);
+    setLoadingPassword(true);
+    setPasswordSuccessMessage(null);
+    setErrorPassword(null);
     if (password === confirmPassword) {
       try {
         const response = await http(token).patch(`/users/${id}`, {
           password,
         });
+        setLoadingPassword(false);
         setPasswordSuccessMessage('Successfully updated');
+        setTimeout(() => {
+          setPasswordSuccessMessage(false);
+        }, 3000);
         return response;
       } catch (error) {
         console.log(error);
+        setLoadingPassword(false);
+        setErrorPassword(error?.response?.data?.message);
+        setTimeout(() => {
+          setErrorPassword(false);
+        }, 3000);
       }
     } else {
+      setLoadingPassword(false);
       setErrorPassword("Password and confirm password doesn't match");
+      setTimeout(() => {
+        setErrorPassword(false);
+      }, 3000);
     }
   };
   const removeMessage = () => {
@@ -272,6 +307,7 @@ const Profile = () => {
                       />
                     </Box>
                   )}
+                  {loadingPicture && <Spinner pb="3" size="lg" />}
                   {successPicture && (
                     <Text pb="3" color="green.600" textAlign="center">
                       {successPicture}
@@ -386,9 +422,15 @@ const Profile = () => {
                       borderColor="#DEDEDE"
                     />
                   </Box>
+                  {loadingInformation && <Spinner pb="3" size="lg" />}
                   {successMessage && (
                     <Text color="green.600" textAlign="center">
                       {successMessage}
+                    </Text>
+                  )}
+                  {errorMessage && (
+                    <Text color="red.600" textAlign="center">
+                      {errorMessage}
                     </Text>
                   )}
                 </Stack>
@@ -483,21 +525,6 @@ const Profile = () => {
                             />
                           </Box>
                         </Box>
-                        {errors.confirmPassword && touched.confirmPassword ? (
-                          <Text color="red.600" textAlign="center" mt="5">
-                            {errors.confirmPassword}
-                          </Text>
-                        ) : null}
-                        {errorPassword && (
-                          <Text color="red.600" textAlign="center" mt="5">
-                            {errorPassword}
-                          </Text>
-                        )}
-                        {passwordSuccessMessage && (
-                          <Text color="green.600" textAlign="center" mt="5">
-                            {passwordSuccessMessage}
-                          </Text>
-                        )}
                         <Box pt="8" pb="3" alignItems="center">
                           <Button
                             onPress={handleSubmit}
@@ -508,6 +535,17 @@ const Profile = () => {
                             <Text color="white">Update Changes</Text>
                           </Button>
                         </Box>
+                        {loadingPassword && <Spinner pb="3" size="lg" />}
+                        {errorPassword && (
+                          <Text color="red.600" textAlign="center" mt="5">
+                            {errorPassword}
+                          </Text>
+                        )}
+                        {passwordSuccessMessage && (
+                          <Text color="green.600" textAlign="center" mt="5">
+                            {passwordSuccessMessage}
+                          </Text>
+                        )}
                       </>
                     )}
                   </Formik>
