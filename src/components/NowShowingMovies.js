@@ -24,7 +24,7 @@ const NowShowing = () => {
   const getNowShowing = async () => {
     try {
       const response = await http().get(
-        '/movies/nowShowing?limit=&page=&search&sort=DESC&sortBy=title',
+        '/movies?limit=&page=&search&sort=DESC&sortBy=title',
       );
       setNowShowingMovies(response?.data?.results);
     } catch (error) {

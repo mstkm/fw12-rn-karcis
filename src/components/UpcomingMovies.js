@@ -106,6 +106,11 @@ const UpcomingMovies = () => {
             );
           })}
         </ScrollView>
+        {upcomingMovies.length === 0 && (
+          <Text style={{color: 'black', marginTop: 20, textAlign: 'center'}}>
+            No results
+          </Text>
+        )}
         <View>
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
             {upcomingMovies?.map(movie => (
