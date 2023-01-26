@@ -19,6 +19,7 @@ import http from '../helpers/http';
 import {useSelector} from 'react-redux';
 import {resetPasswordToNull as resetPasswordToNullAction} from '../redux/reducers/resetPassword';
 import {useDispatch} from 'react-redux';
+import {Spinner} from 'native-base';
 
 const ResetPassword = () => {
   const email = useSelector(state => state?.resetPassword?.email);
@@ -62,9 +63,13 @@ const ResetPassword = () => {
   };
 
   // Handle Reset Password
+  const [loading, setLoading] = React.useState(false);
   const [successMessage, setSuccessMessage] = React.useState(null);
   const [errorMessage, setErrorMessage] = React.useState(null);
   const handleResetPassword = async values => {
+    setLoading(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
     try {
       const response = await http().post('/auth/resetPassword', {
         email,
@@ -72,7 +77,7 @@ const ResetPassword = () => {
         password: values.password,
         confirmPassword: values.confirmPassword,
       });
-      setErrorMessage(null);
+      setLoading(false);
       setSuccessMessage(response?.data?.message);
       setTimeout(() => {
         navigation.navigate('SignIn');
@@ -81,7 +86,7 @@ const ResetPassword = () => {
       return response;
     } catch (error) {
       console.log(error);
-      setSuccessMessage(null);
+      setLoading(false);
       setErrorMessage(error?.response?.data?.message);
     }
   };
@@ -102,6 +107,7 @@ const ResetPassword = () => {
           Check your email for the code
         </Text>
       </View>
+      {loading && <Spinner style={{marginTop: 20}} size="lg" />}
       {successMessage && (
         <>
           <View style={styles.alertSuccess}>

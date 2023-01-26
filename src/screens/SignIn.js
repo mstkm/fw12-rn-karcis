@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {
   ScrollView,
@@ -48,18 +49,24 @@ const SignIn = () => {
   };
 
   // Login
+  const [loadingSignin, setLoadingSignin] = React.useState(false);
   const [successMessage, setSuccessMessage] = React.useState(null);
   const [errorMessage, setErrorMessage] = React.useState(null);
   const login = async form => {
+    setLoadingSignin(true);
+    setSuccessMessage(null);
+    setErrorMessage(null);
     try {
       const response = await http().post('/auth/login', form);
       const token = response?.data?.results;
+      setLoadingSignin(false);
       setSuccessMessage(response?.data?.message);
       setTimeout(() => {
         dispatch(loginAction(token));
       }, 1000);
     } catch (error) {
       console.log(error);
+      setLoadingSignin(false);
       setErrorMessage(error?.response?.data?.message);
     }
   };
@@ -77,13 +84,13 @@ const SignIn = () => {
           Sign in with your data that you entered during your registration
         </Text>
       </View>
+      {loadingSignin && <Spinner style={{marginTop: 20}} size="lg" />}
       {successMessage && (
         <>
           <View style={styles.alertSuccess}>
             <Icon name="alert-circle" size={20} color="black" />
             <Text style={styles.alertMessage}>{successMessage}</Text>
           </View>
-          <Spinner style={{marginTop: 20}} size="lg" />
         </>
       )}
       {errorMessage && (

@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {
   ScrollView,
@@ -17,6 +18,7 @@ import http from '../helpers/http';
 import Icon from 'react-native-vector-icons/Feather';
 import {useDispatch} from 'react-redux';
 import {resetPassword as resetPasswordAction} from '../redux/reducers/resetPassword';
+import {Spinner} from 'native-base';
 
 const ForgotPassword = () => {
   const navigation = useNavigation();
@@ -44,18 +46,22 @@ const ForgotPassword = () => {
   };
 
   // Handle Forgot Password
+  const [loading, setLoading] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState(null);
   const handleForgotPassword = async value => {
     const email = value.email;
+    setLoading(true);
     if (emailUsers.includes(email)) {
       try {
         await http().post('/auth/forgotPassword', {email});
         dispatch(resetPasswordAction({email}));
+        setLoading(false);
         navigation.navigate('ResetPassword');
       } catch (error) {
         console.log(error);
       }
     } else {
+      setLoading(false);
       setErrorMessage('Email is not registered');
     }
   };
@@ -71,6 +77,7 @@ const ForgotPassword = () => {
         <Text style={styles.h1}>Forgot Password</Text>
         <Text style={styles.text}>we'll send a link to your email shortly</Text>
       </View>
+      {loading && <Spinner style={{marginTop: 20}} size="lg" />}
       {errorMessage && (
         <View style={styles.alertError}>
           <Icon name="alert-triangle" size={20} color="black" />

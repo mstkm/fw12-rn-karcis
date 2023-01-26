@@ -63,18 +63,24 @@ const SignUp = () => {
   };
 
   // Handle Sign Up
+  const [loadingSignup, setLoadingSignup] = React.useState(false);
   const [successMessage, setSuccessMessage] = React.useState(null);
   const [errorMessage, setErrorMessage] = React.useState(null);
   const handleSignUp = async form => {
+    setLoadingSignup(true);
+    setSuccessMessage(null);
+    setErrorMessage(null);
     try {
       const response = await http().post('/auth/register', form);
       const token = response?.data?.results;
+      setLoadingSignup(false);
       setSuccessMessage(response?.data?.message);
       setTimeout(() => {
         dispatch(loginAction(token));
       }, 1000);
     } catch (error) {
       console.log(error);
+      setLoadingSignup(false);
       setErrorMessage('Register Failed. ' + error?.response?.data?.message);
     }
   };
@@ -93,13 +99,13 @@ const SignUp = () => {
             <Text style={styles.h1}>Sign Up</Text>
             <Text style={styles.text}>Fill your additional details</Text>
           </View>
+          {loadingSignup && <Spinner style={{marginTop: 20}} size="lg" />}
           {successMessage && (
             <>
               <View style={styles.alertSuccess}>
                 <Icon name="alert-circle" size={20} color="black" />
                 <Text style={styles.alertMessage}>{successMessage}</Text>
               </View>
-              <Spinner style={{marginTop: 20}} size="lg" />
             </>
           )}
           {errorMessage && (
