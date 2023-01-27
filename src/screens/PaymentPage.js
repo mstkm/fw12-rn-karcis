@@ -21,6 +21,8 @@ import {useNavigation} from '@react-navigation/native';
 import {transaction as transactionAction} from '../redux/reducers/transaction';
 import http from '../helpers/http';
 import jwt_decode from 'jwt-decode';
+import {Spinner} from 'native-base';
+import PushNotification from 'react-native-push-notification';
 
 const PaymentPage = () => {
   const token = useSelector(state => state?.auth?.token);
@@ -103,10 +105,11 @@ const PaymentPage = () => {
     );
     createTransaction();
   };
-  console.log();
 
   // Create Transaction
+  const [loadingTransaction, setLoadingTransaction] = React.useState(false);
   const createTransaction = async () => {
+    setLoadingTransaction(true);
     try {
       const response = await http(token).post('/profile/transaction', {
         bookingDate,
@@ -126,7 +129,12 @@ const PaymentPage = () => {
         bookingTime,
         totalPrice: seatNum.length * price,
       });
-      // navigation.navigate('OrderHistory');
+      PushNotification.localNotification({
+        channelId: 'global_notif', // (required)
+        title: 'Success', // (optional)
+        message: 'Your ticket has been booked, we wait for you', // (required)
+      });
+      setLoadingTransaction(false);
       navigation.reset({
         index: 0,
         routes: [
@@ -140,6 +148,7 @@ const PaymentPage = () => {
       });
       return response;
     } catch (error) {
+      setLoadingTransaction(false);
       console.log(error?.response);
     }
   };
@@ -286,6 +295,7 @@ const PaymentPage = () => {
               Pay Your Order
             </Text>
           </Button>
+          {loadingTransaction && <Spinner marginTop={5} size="lg" />}
         </Box>
         <Footer />
       </ScrollView>

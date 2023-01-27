@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Karcis</string>
+    <string name="default_notification_channel_id">global_notif</string>
 </resources>

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "571408497113",
+    "project_id": "karcis-app",
+    "storage_bucket": "karcis-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:571408497113:android:5036f8a12e9e54859281c8",
+        "android_client_info": {
+          "package_name": "com.karcis"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "571408497113-ibu2hm9l2raoc1lorgq6h6g1olpog221.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxiikPUeUGLEAY7HFuwL2Jzh7KntO_EUc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "571408497113-ibu2hm9l2raoc1lorgq6h6g1olpog221.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
