@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {BACKEND_URL} from '@env';
+import {URL_BACKEND} from '@env';
 
 const http = token => {
   const headers = {};
@@ -7,7 +7,7 @@ const http = token => {
     headers.authorization = 'Bearer ' + token;
   }
   const instance = axios.create({
-    baseURL: BACKEND_URL,
+    baseURL: URL_BACKEND,
     headers,
   });
   return instance;
