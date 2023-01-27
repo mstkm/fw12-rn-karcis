@@ -278,6 +278,9 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    // for splash screen
+    implementation project(':react-native-splash-screen')
 }
 
 if (isNewArchitectureEnabled()) {
