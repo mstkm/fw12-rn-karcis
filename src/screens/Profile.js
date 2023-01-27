@@ -276,7 +276,7 @@ const Profile = () => {
             </Pressable>
           </HStack>
         )}
-        {user.email ? (
+        {user?.email ? (
           <>
             <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
               <Modal.Content maxWidth="400px">
