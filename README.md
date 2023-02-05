@@ -1,30 +1,30 @@
 <div align="center">
   <br>
   <h1><strong>Karcis Mobile App</strong></h1>
-  <p>Aplikasi pemesanan tiket secara online.</p>
+  <p>Online ticket booking application.</p>
 
   <!-- [**View the Web App**](https://exceltodynamodbjson.vercel.app) -->
 </div>
 
-## Daftar Isi
+## Table of contents
 
-- [Daftar isi](#daftar-isi)
-- [Deskripsi](#deskripsi)
-- [Teknologi](#teknologi)
+- [Table of contents](#table-of-contents)
+- [Description](#description)
+- [Technologies](#technologies)
 
-## Deskripsi
+## Description
 
-**Karcis App** adalah aplikasi yang dapat digunakan untuk memesan tiket menonton film di bioskop.
+**Karcis App** is an mobile application that can be used to order tickets to watch movies in cinemas.
 
 
 <img src="https://res.cloudinary.com/dvzrmzldr/image/upload/v1674811541/ic_launcher_ymhpod.png" width="200">
 <img src="https://res.cloudinary.com/dvzrmzldr/image/upload/v1674811679/Screenshot_20230127_162720_vsbtbp.png" width="200">
 
 
-## Teknologi
+## Technologies
 
 - [React Native](https://reactnative.dev/)
 - [Native Base](https://nativebase.io/)
 - [Redux](https://redux-toolkit.js.org/)
 - [Formik](https://formik.org/)
-- dll
+- etc
